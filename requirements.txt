@@ -1,0 +1,11 @@
+# Core analysis
+pandas>=2.0
+numpy>=1.24
+matplotlib>=3.7
+
+# dbt layer (optional — only needed to run `dbt build`)
+dbt-core>=1.7
+dbt-duckdb>=1.7
+duckdb>=0.9
+
+# SQLite (sqlite3) and json/math are in the Python standard library.

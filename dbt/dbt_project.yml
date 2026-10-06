@@ -1,0 +1,33 @@
+name: 'marketplace_analytics'
+version: '1.0.0'
+config-version: 2
+
+profile: 'marketplace_analytics'
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+# Layered warehouse: staging (clean 1:1 views over raw) -> marts (business
+# entities + aggregates, materialised as tables). This mirrors the structure a
+# real analytics team would run on Snowflake/BigQuery/Redshift; here it is wired
+# to dbt-duckdb reading the CSV extracts so `dbt build` runs end to end locally.
+models:
+  marketplace_analytics:
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      core:
+        +schema: core
+      marketing:
+        +schema: marketing
+      product:
+        +schema: product
+      supply:
+        +schema: supply

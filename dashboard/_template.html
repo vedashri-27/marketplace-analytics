@@ -1,0 +1,586 @@
+<title>Marketplace Analytics</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  /* sticky header + KPI strip, then tabbed panels of charts/tables/sim */
+  :root{
+    --bg:#FBFAF8; --panel:#FFFFFF; --panel-2:#F4F2EE; --ink:#1B2430; --muted:#5B6672;
+    --line:#E7E3DC; --accent:#3D5AFE; --accent-soft:#ECEFFF; --teal:#0D9488;
+    --good:#15A34A; --warn:#D97706; --bad:#DC2626; --grid:#ECE9E3;
+    --font:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --shadow:0 1px 2px rgba(16,24,40,.04),0 4px 16px rgba(16,24,40,.05);
+    --radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#0E131A; --panel:#161D27; --panel-2:#1C2531; --ink:#E8EDF3; --muted:#9AA7B5;
+    --line:#26303C; --accent:#8AA0FF; --accent-soft:#1E2740; --teal:#2DD4BF;
+    --good:#34D399; --warn:#FBBF24; --bad:#F87171; --grid:#232D39; color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0E131A; --panel:#161D27; --panel-2:#1C2531; --ink:#E8EDF3; --muted:#9AA7B5;
+    --line:#26303C; --accent:#8AA0FF; --accent-soft:#1E2740; --teal:#2DD4BF;
+    --good:#34D399; --warn:#FBBF24; --bad:#F87171; --grid:#232D39; color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.45;
+    -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+  .wrap{max-width:1180px;margin:0 auto;padding-inline:20px}
+
+  header.app{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+    background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line)}
+  .head-row{display:flex;align-items:center;gap:16px;padding-block:14px;flex-wrap:wrap}
+  .brand h1{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em}
+  .brand p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+  .head-spacer{flex:1}
+  .asof{font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:right;line-height:1.5}
+  .toggle{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+    width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:16px;display:grid;place-items:center}
+  .toggle:hover{border-color:var(--accent)}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+  @media(max-width:860px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 15px;box-shadow:var(--shadow)}
+  .kpi .label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .kpi .val{font-family:var(--mono);font-size:25px;font-weight:600;margin-top:6px;letter-spacing:-.02em}
+  .kpi .sub{font-size:11.5px;color:var(--muted);margin-top:3px}
+  .kpi .sub.good{color:var(--good)} .kpi .sub.bad{color:var(--bad)}
+
+  nav.tabs{display:flex;gap:4px;margin:22px 0 4px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  nav.tabs button{appearance:none;border:0;background:none;color:var(--muted);font-family:var(--font);
+    font-size:14px;font-weight:600;padding:10px 14px;cursor:pointer;border-bottom:2px solid transparent;
+    margin-bottom:-1px;border-radius:6px 6px 0 0}
+  nav.tabs button:hover{color:var(--ink);background:var(--panel-2)}
+  nav.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+
+  .grid{display:grid;gap:16px;margin:16px 0 30px}
+  .cols-2{grid-template-columns:1fr 1fr}
+  .cols-3-2{grid-template-columns:3fr 2fr}
+  @media(max-width:820px){.cols-2,.cols-3-2{grid-template-columns:1fr}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 17px;box-shadow:var(--shadow);min-width:0}
+  .card h3{margin:0 0 2px;font-size:15px;font-weight:600;letter-spacing:-.01em}
+  .card .cap{margin:0 0 12px;font-size:12.5px;color:var(--muted)}
+  .chart-box{position:relative;height:300px}
+  .chart-box.tall{height:340px}
+  .chart-missing{display:flex;height:100%;align-items:center;justify-content:center;text-align:center;
+    color:var(--muted);font-size:12.5px;padding:0 20px}
+
+  table{width:100%;border-collapse:collapse;font-size:12.8px}
+  th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  thead th{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  tbody tr:hover{background:var(--panel-2)}
+  td.num,th.num{font-family:var(--mono)}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .pill.scale{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+  .pill.optimise{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+  .pill.cut{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+  .pill.owned{background:var(--panel-2);color:var(--muted)}
+
+  /* health index hero */
+  .hero{display:grid;grid-template-columns:210px 1fr;gap:22px;align-items:center}
+  @media(max-width:760px){.hero{grid-template-columns:1fr}}
+  .hi-num{font-family:var(--mono);font-size:62px;font-weight:600;line-height:1;letter-spacing:-.03em;color:var(--accent)}
+  .hi-num span{font-size:22px;color:var(--muted)}
+  .hi-lab{font-size:13px;font-weight:600;margin-top:4px}
+  .hi-cap{font-size:12px;color:var(--muted);margin-top:4px}
+  .hi-comp{display:flex;flex-direction:column;gap:9px}
+  .hc{display:grid;grid-template-columns:120px 1fr 74px;gap:10px;align-items:center;font-size:12.5px}
+  .hc .trk{background:var(--panel-2);border-radius:6px;height:16px;overflow:hidden}
+  .hc .fil{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--teal))}
+  .hc .sc{font-family:var(--mono);text-align:right;color:var(--muted)}
+
+  /* funnel */
+  .funnel{display:flex;flex-direction:column;gap:9px}
+  .fstage{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center}
+  .fstage .lab{font-size:12.5px;color:var(--muted)}
+  .fbar-track{background:var(--panel-2);border-radius:7px;overflow:hidden;height:30px}
+  .fbar{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));
+    display:flex;align-items:center;justify-content:flex-end;padding-right:9px;color:#fff;
+    font-family:var(--mono);font-size:11.5px;font-weight:600;min-width:62px}
+  .fdrop{font-size:10.5px;color:var(--bad);font-family:var(--mono)}
+
+  /* cohort */
+  .heat{overflow-x:auto}
+  .heat table{font-size:11.5px;min-width:430px}
+  .heat td.cell{font-family:var(--mono);font-weight:600;text-align:center;border:2px solid var(--panel)}
+
+  /* experiment */
+  .exp-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;align-items:center}
+  @media(max-width:820px){.exp-grid{grid-template-columns:1fr}}
+  .exp-stat{text-align:center}
+  .exp-stat .big{font-family:var(--mono);font-size:44px;font-weight:600;color:var(--good);letter-spacing:-.02em}
+  .exp-stat .lbl{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .exp-meta{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;margin-top:12px;font-size:12.5px;color:var(--muted)}
+  .exp-meta b{color:var(--ink);font-family:var(--mono)}
+  .verdict{margin-top:14px;text-align:center;font-weight:700;color:var(--good)}
+  .armbars{display:flex;flex-direction:column;gap:12px}
+  .arm{display:grid;grid-template-columns:78px 1fr 58px;gap:10px;align-items:center;font-size:12.5px}
+  .arm .track{background:var(--panel-2);border-radius:7px;height:26px;overflow:hidden}
+  .arm .fill{height:100%;border-radius:7px}
+  .arm .fill.c{background:var(--muted)} .arm .fill.t{background:var(--good)}
+  .arm .pct{font-family:var(--mono);font-weight:600}
+
+  /* simulator */
+  .sim-label{font-size:13px;font-weight:600;margin:6px 0 6px}
+  .sim-label b{font-family:var(--mono);color:var(--accent)}
+  input[type=range]{width:100%;accent-color:var(--accent);height:26px}
+  .sim-out{display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:12px}
+  .sim-metric .v{font-family:var(--mono);font-size:24px;font-weight:600}
+  .sim-metric .k{font-size:11.5px;color:var(--muted)}
+  .sim-metric .v.good{color:var(--good)} .sim-metric .v.bad{color:var(--bad)}
+
+  .note{font-size:11.5px;color:var(--muted);margin-top:10px}
+  footer{border-top:1px solid var(--line);margin-top:10px;padding:18px 0 34px;color:var(--muted);font-size:12px}
+  .insight{font-size:12.8px;color:var(--ink);background:var(--accent-soft);border:1px solid var(--line);
+    border-radius:10px;padding:9px 12px;margin-top:12px}
+  .insight b{color:var(--accent)}
+</style>
+
+<header class="app">
+  <div class="wrap head-row">
+    <div class="brand">
+      <h1>Marketplace Analytics</h1>
+      <p>A simulated two-sided experiences marketplace · growth, product &amp; supply</p>
+    </div>
+    <div class="head-spacer"></div>
+    <div class="asof" id="asof"></div>
+    <button class="toggle" id="themeBtn" title="Toggle light/dark" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="kpis" id="kpis"></section>
+
+  <nav class="tabs" id="tabs" role="tablist">
+    <button role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button role="tab" data-tab="growth" aria-selected="false">Growth &amp; Marketing</button>
+    <button role="tab" data-tab="product" aria-selected="false">Product &amp; Experiment</button>
+    <button role="tab" data-tab="supply" aria-selected="false">Supply &amp; Pricing</button>
+    <button role="tab" data-tab="simulator" aria-selected="false">Scenario Simulator</button>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <section data-panel="overview">
+    <div class="grid">
+      <div class="card">
+        <h3>Marketplace Health Index</h3>
+        <p class="cap">A single 0–100 score I blended from five drivers (weights in the project notes).</p>
+        <div class="hero">
+          <div>
+            <div class="hi-num" id="hi_num">–<span>/100</span></div>
+            <div class="hi-lab" id="hi_lab"></div>
+            <div class="hi-cap">Weighted: growth, conversion, retention, marketing ROAS, supply spread.</div>
+          </div>
+          <div class="hi-comp" id="hi_comp"></div>
+        </div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>GMV &amp; month-over-month growth</h3>
+        <p class="cap">Realised gross booking value by month, with MoM growth overlaid.</p>
+        <div class="chart-box tall"><canvas id="c_monthly"></canvas></div>
+        <div class="insight" id="ins_overview"></div>
+      </div>
+    </div>
+    <div class="grid cols-3-2">
+      <div class="card">
+        <h3>Conversion funnel</h3>
+        <p class="cap">Session to booking across the whole journey.</p>
+        <div class="funnel" id="funnel"></div>
+      </div>
+      <div class="card">
+        <h3>Where GMV comes from</h3>
+        <p class="cap">Region and city-tier, with running share.</p>
+        <div class="scroll"><table id="t_region"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GROWTH -->
+  <section data-panel="growth" hidden>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Paid channel efficiency</h3>
+        <p class="cap">ROAS on net revenue; break-even is 1.0x.</p>
+        <div class="chart-box"><canvas id="c_roas"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Acquisition-channel 90-day value</h3>
+        <p class="cap">Average net revenue in the first 90 days, by first-touch channel.</p>
+        <div class="chart-box"><canvas id="c_ltv"></canvas></div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Channel scorecard</h3>
+        <p class="cap">Funnel, spend, CAC, ROAS and the call it implies.</p>
+        <div class="scroll"><table id="t_channels"></table></div>
+        <div class="insight" id="ins_growth"></div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Signup-cohort repeat-purchase retention</h3>
+        <p class="cap">Share of each monthly cohort that books again, by months since signup.</p>
+        <div class="heat"><table id="t_cohort"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCT -->
+  <section data-panel="product" hidden>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Funnel by device</h3>
+        <p class="cap">Checkout-to-book conversion by device.</p>
+        <div class="scroll"><table id="t_device"></table></div>
+        <div class="insight" id="ins_device"></div>
+      </div>
+      <div class="card">
+        <h3>A/B test: checkout_v2</h3>
+        <p class="cap">Randomised post-launch traffic, two-proportion z-test.</p>
+        <div class="exp-grid">
+          <div class="exp-stat">
+            <div class="big" id="exp_lift"></div>
+            <div class="lbl">relative lift in conversion</div>
+            <div class="exp-meta" id="exp_meta"></div>
+            <div class="verdict" id="exp_verdict"></div>
+          </div>
+          <div class="armbars" id="exp_bars"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUPPLY -->
+  <section data-panel="supply" hidden>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Supplier concentration (Pareto)</h3>
+        <p class="cap">Top 25 suppliers by GMV; line is cumulative share.</p>
+        <div class="chart-box"><canvas id="c_pareto"></canvas></div>
+        <div class="insight" id="ins_supply"></div>
+      </div>
+      <div class="card">
+        <h3>Dynamic-pricing uplift by category</h3>
+        <p class="cap">Incremental GMV captured over flat base prices.</p>
+        <div class="chart-box"><canvas id="c_pricing"></canvas></div>
+      </div>
+    </div>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Lead time &amp; the last-minute premium</h3>
+        <p class="cap">Price multiplier and volume by booking lead time.</p>
+        <div class="chart-box"><canvas id="c_leadtime"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>City operational health</h3>
+        <p class="cap">GMV, cancellation rate and rating by city.</p>
+        <div class="scroll"><table id="t_cities"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIMULATOR -->
+  <section data-panel="simulator" hidden>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Shift paid budget</h3>
+        <p class="cap">Move spend from the worst-ROAS channel (Display) to the best (Affiliates) and see the effect.</p>
+        <div class="sim-label">Move <b id="bg_amt"></b> from Display → Affiliates</div>
+        <input type="range" id="bg_slider" min="0" max="100" step="1" value="50" aria-label="Budget to move">
+        <div class="sim-out" id="bg_out"></div>
+        <p class="note">Simple linear-at-the-margin estimate over the 18-month period. Real channels hit diminishing returns as you scale, so read this as an optimistic upper bound, not a promise.</p>
+      </div>
+      <div class="card">
+        <h3>Fix mobile checkout</h3>
+        <p class="cap">Mobile converts worse than desktop at checkout. Close part of that gap and see the upside.</p>
+        <div class="sim-label">Close <b id="mb_pct"></b> of the mobile→desktop gap</div>
+        <input type="range" id="mb_slider" min="0" max="100" step="5" value="50" aria-label="Share of gap closed">
+        <div class="sim-out" id="mb_out"></div>
+        <p class="note">Assumes desktop-level checkout conversion is reachable on mobile. Totals are over the 18 months in the dataset.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="wrap" id="foot"></footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
+<script>
+const DATA = /*__DATA__*/ null;
+
+const nf = new Intl.NumberFormat('en-US');
+const usd = v => { const a=Math.abs(v);
+  if(a>=1e6) return '$'+(v/1e6).toFixed(2)+'M';
+  if(a>=1e3) return '$'+(v/1e3).toFixed(0)+'K';
+  return '$'+Math.round(v); };
+const usd0 = v => '$'+nf.format(Math.round(v));
+const cvar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let charts = [];
+
+/* ---------- KPI tiles ---------- */
+function renderKPIs(){
+  const h=DATA.headline;
+  const tiles=[
+    {label:'GMV (18 mo)', val:usd(h.gmv_usd), sub:'gross booking value'},
+    {label:'Net revenue', val:usd(h.net_revenue_usd), sub:'platform commission'},
+    {label:'Take rate', val:h.take_rate_pct.toFixed(1)+'%', sub:'net revenue / GMV'},
+    {label:'Bookings', val:nf.format(h.bookings), sub:'AOV '+usd0(h.aov_usd)},
+    {label:'Conversion', val:h.conversion_pct.toFixed(2)+'%', sub:'session to booking'},
+    {label:'Repeat rate', val:h.repeat_rate_pct.toFixed(1)+'%', sub:'customers with 2+ bookings'},
+    {label:'Blended paid ROAS', val:h.paid_blended_roas.toFixed(2)+'x',
+      sub:h.paid_blended_roas>=1?'above break-even':'below break-even',
+      cls:h.paid_blended_roas>=1?'good':'bad'},
+    {label:'Paid spend', val:usd(h.paid_spend_usd), sub:'4 paid channels'},
+  ];
+  document.getElementById('kpis').innerHTML = tiles.map(t=>`
+    <div class="kpi"><div class="label">${t.label}</div>
+      <div class="val">${t.val}</div><div class="sub ${t.cls||''}">${t.sub}</div></div>`).join('');
+}
+
+/* ---------- health index ---------- */
+function renderHealth(){
+  const h=DATA.headline, comp=DATA.health_components||[];
+  document.getElementById('hi_num').innerHTML = h.health_index+'<span>/100</span>';
+  const band = h.health_index>=70?'Healthy':h.health_index>=50?'Mixed — a few things to fix':'Needs attention';
+  document.getElementById('hi_lab').textContent = band;
+  document.getElementById('hi_comp').innerHTML = comp.map(c=>`
+    <div class="hc"><div>${c.name} <span style="color:var(--muted)">·${c.weight}%</span></div>
+      <div class="trk"><div class="fil" style="width:${c.score}%"></div></div>
+      <div class="sc">${c.score.toFixed(0)}/100</div></div>`).join('');
+}
+
+/* ---------- tables ---------- */
+function table(el, cols, rows){
+  const thead='<thead><tr>'+cols.map(c=>`<th class="${c.num?'num':''}">${c.h}</th>`).join('')+'</tr></thead>';
+  const tbody='<tbody>'+rows.map(r=>'<tr>'+cols.map(c=>{
+    const v=c.f?c.f(r[c.k],r):r[c.k];
+    return `<td class="${c.num?'num':''}">${v==null?'–':v}</td>`;}).join('')+'</tr>').join('')+'</tbody>';
+  document.getElementById(el).innerHTML=thead+tbody;
+}
+function recPill(r){const m={'Scale':'scale','Optimise':'optimise','Cut / fix':'cut','Organic / owned':'owned'};
+  return `<span class="pill ${m[r]||'owned'}">${r}</span>`;}
+
+/* ---------- funnel ---------- */
+function renderFunnel(){
+  const f=DATA.funnel, max=f[0].users;
+  document.getElementById('funnel').innerHTML=f.map(s=>{
+    const w=Math.max(6,s.users/max*100);
+    const drop=s.users_lost_vs_prev!=null?`−${nf.format(s.users_lost_vs_prev)} lost (${(100-s.step_conversion_pct).toFixed(0)}%)`:'';
+    return `<div class="fstage"><div class="lab">${s.stage}</div>
+      <div><div class="fbar-track"><div class="fbar" style="width:${w}%">${nf.format(s.users)} · ${s.pct_of_sessions}%</div></div>
+      ${drop?`<div class="fdrop">${drop}</div>`:''}</div></div>`;}).join('');
+}
+
+/* ---------- cohort heatmap ---------- */
+function renderCohort(){
+  const c=DATA.cohort, flat=c.matrix.flat().filter(v=>v!=null), max=Math.max(...flat);
+  const style=v=>{ if(v==null) return 'background:transparent';
+    const t=v/max, bg=`color-mix(in srgb, var(--accent) ${Math.round(14+t*74)}%, var(--panel))`;
+    return `background:${bg};color:${t>0.55?'#fff':'var(--ink)'}`; };
+  let html='<thead><tr><th>Cohort</th>'+c.months.map(m=>`<th class="num">M${m}</th>`).join('')+'</tr></thead><tbody>';
+  c.cohorts.forEach((name,i)=>{ html+=`<tr><td>${name}</td>`+c.matrix[i].map(v=>
+    `<td class="cell" style="${style(v)}">${v==null?'':v.toFixed(1)}</td>`).join('')+'</tr>'; });
+  document.getElementById('t_cohort').innerHTML=html+'</tbody>';
+}
+
+/* ---------- experiment ---------- */
+function renderExperiment(){
+  const e=DATA.experiment;
+  document.getElementById('exp_lift').textContent='+'+e.rel_lift_pct.toFixed(1)+'%';
+  const p=e.p_value===0?'<1e-10':e.p_value.toExponential(1);
+  document.getElementById('exp_meta').innerHTML=
+    `<span>control <b>${(e.control_rate*100).toFixed(2)}%</b></span>
+     <span>treatment <b>${(e.treatment_rate*100).toFixed(2)}%</b></span>
+     <span>abs <b>+${e.abs_lift_pp.toFixed(2)}pp</b></span>
+     <span>p <b>${p}</b></span>
+     <span>95% CI <b>[${e.ci_low_pp.toFixed(2)}, ${e.ci_high_pp.toFixed(2)}]pp</b></span>`;
+  document.getElementById('exp_verdict').textContent=
+    e.significant?'Statistically significant — ship it':'Not significant — keep running';
+  const arms=[['Control',e.control_rate,'c',e.control],['Treatment',e.treatment_rate,'t',e.treatment]];
+  const mx=Math.max(e.control_rate,e.treatment_rate);
+  document.getElementById('exp_bars').innerHTML=arms.map(([n,r,cls,o])=>`
+    <div class="arm"><div>${n}<div class="note" style="margin:0">${nf.format(o.sessions)} sess</div></div>
+      <div class="track"><div class="fill ${cls}" style="width:${r/mx*100}%"></div></div>
+      <div class="pct">${(r*100).toFixed(2)}%</div></div>`).join('');
+}
+
+/* ---------- scenario simulator ---------- */
+function renderSimulator(){
+  const ch=DATA.channels.filter(c=>c.spend_usd>0);
+  const disp=ch.find(c=>c.channel==='Display')||{spend_usd:0,roas_on_net_rev:0};
+  const aff=ch.find(c=>c.channel==='Affiliates')||{roas_on_net_rev:0};
+  const totSpend=ch.reduce((s,c)=>s+c.spend_usd,0);
+  const totNet=ch.reduce((s,c)=>s+c.net_revenue_usd,0);
+  const maxMove=Math.round(disp.spend_usd);
+  const bg=document.getElementById('bg_slider');
+
+  function budget(){
+    const move=Math.round(maxMove*(bg.value/100));
+    const dNet=move*(aff.roas_on_net_rev-disp.roas_on_net_rev);
+    const newNet=totNet - move*disp.roas_on_net_rev + move*aff.roas_on_net_rev;
+    const newBlended=totSpend>0?newNet/totSpend:0;
+    document.getElementById('bg_amt').textContent=usd0(move);
+    document.getElementById('bg_out').innerHTML=
+      `<div class="sim-metric"><div class="v ${dNet>=0?'good':'bad'}">${dNet>=0?'+':''}${usd0(dNet)}</div><div class="k">Δ net revenue</div></div>
+       <div class="sim-metric"><div class="v">${DATA.headline.paid_blended_roas.toFixed(2)}x → ${newBlended.toFixed(2)}x</div><div class="k">blended paid ROAS</div></div>`;
+  }
+  bg.oninput=budget; budget();
+
+  const dc=DATA.device_checkout||[];
+  const mob=dc.find(d=>d.device==='Mobile'), desk=dc.find(d=>d.device==='Desktop');
+  const mb=document.getElementById('mb_slider');
+  function mobile(){
+    const pct=mb.value/100;
+    let extraB=0;
+    if(mob&&desk){ const gap=(desk.checkout_to_book_pct-mob.checkout_to_book_pct)/100;
+      extraB=Math.round(mob.checkout_started*gap*pct); }
+    const extraG=extraB*DATA.headline.aov_usd;
+    document.getElementById('mb_pct').textContent=mb.value+'%';
+    document.getElementById('mb_out').innerHTML=
+      `<div class="sim-metric"><div class="v good">+${nf.format(extraB)}</div><div class="k">extra bookings (18 mo)</div></div>
+       <div class="sim-metric"><div class="v good">+${usd(extraG)}</div><div class="k">extra GMV</div></div>
+       <div class="sim-metric"><div class="v">+${nf.format(Math.round(extraB/18))}</div><div class="k">per month</div></div>`;
+  }
+  mb.oninput=mobile; mobile();
+}
+
+/* ---------- charts ---------- */
+function chartFallback(e){
+  document.querySelectorAll('.chart-box').forEach(b=>{
+    b.innerHTML='<div class="chart-missing">The charts use a library loaded over the internet (Chart.js). They’ll appear online; the tables and numbers all work offline.</div>';
+  });
+  if(e) console.warn('charts unavailable:', e);
+}
+function buildCharts(){
+  if(typeof Chart==='undefined'){ chartFallback(); return; }
+  charts.forEach(c=>c.destroy()); charts=[];
+  const ink=cvar('--ink'), muted=cvar('--muted'), grid=cvar('--grid');
+  Chart.defaults.color=muted; Chart.defaults.font.family='IBM Plex Sans'; Chart.defaults.font.size=11;
+  const accent=cvar('--accent'), teal=cvar('--teal'), good=cvar('--good'), warn=cvar('--warn'), bad=cvar('--bad');
+  const gl={grid:{color:grid},ticks:{color:muted}}, noGrid={grid:{display:false},ticks:{color:muted}};
+
+  const m=DATA.monthly;
+  charts.push(new Chart(c_monthly,{data:{labels:m.map(r=>r.year_month),datasets:[
+    {type:'bar',label:'GMV',data:m.map(r=>r.gmv_usd),backgroundColor:teal,borderRadius:4,yAxisID:'y',order:2},
+    {type:'line',label:'MoM growth %',data:m.map(r=>r.gmv_mom_growth_pct),borderColor:accent,backgroundColor:accent,tension:.3,pointRadius:2.5,borderWidth:2,yAxisID:'y1',order:1}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{boxWidth:12}}},
+      scales:{y:{...gl,ticks:{...gl.ticks,callback:v=>usd(v)}},y1:{...noGrid,position:'right',ticks:{...noGrid.ticks,callback:v=>v+'%'}},
+        x:{...noGrid,ticks:{...noGrid.ticks,maxRotation:45,minRotation:45,font:{size:9}}}}}}));
+
+  const paid=DATA.channels.filter(c=>c.spend_usd>0).sort((a,b)=>a.roas_on_net_rev-b.roas_on_net_rev);
+  charts.push(new Chart(c_roas,{type:'bar',data:{labels:paid.map(c=>c.channel),datasets:[{label:'ROAS',
+    data:paid.map(c=>c.roas_on_net_rev),backgroundColor:paid.map(c=>c.roas_on_net_rev>=1.5?good:(c.roas_on_net_rev>=1?warn:bad)),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>`${c.raw}x · CAC $${paid[c.dataIndex].cac_usd}`}}},
+      scales:{x:{...gl,ticks:{...gl.ticks,callback:v=>v+'x'},suggestedMax:2.2},y:{...noGrid}}}}));
+
+  const l=[...DATA.ltv].sort((a,b)=>a.avg_90d_net_rev_usd-b.avg_90d_net_rev_usd);
+  charts.push(new Chart(c_ltv,{type:'bar',data:{labels:l.map(r=>r.acquisition_channel),datasets:[{label:'Avg 90-day net rev',
+    data:l.map(r=>r.avg_90d_net_rev_usd),backgroundColor:accent,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>`$${c.raw} · ${nf.format(l[c.dataIndex].customers_acquired)} customers`}}},
+      scales:{x:{...gl,ticks:{...gl.ticks,callback:v=>'$'+v}},y:{...noGrid}}}}));
+
+  const s=DATA.suppliers_top;
+  charts.push(new Chart(c_pareto,{data:{labels:s.map(r=>'#'+r.gmv_rank),datasets:[
+    {type:'bar',label:'GMV',data:s.map(r=>r.gmv_usd),backgroundColor:teal,borderRadius:3,yAxisID:'y',order:2},
+    {type:'line',label:'Cumulative %',data:s.map(r=>r.running_gmv_share_pct),borderColor:accent,backgroundColor:accent,pointRadius:1.8,borderWidth:2,tension:.2,yAxisID:'y1',order:1}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},
+      scales:{y:{...gl,ticks:{...gl.ticks,callback:v=>usd(v)}},y1:{...noGrid,position:'right',min:0,suggestedMax:60,ticks:{...noGrid.ticks,callback:v=>v+'%'}},
+        x:{...noGrid,ticks:{...noGrid.ticks,font:{size:8}}}}}}));
+
+  const pc=[...DATA.pricing_by_category].sort((a,b)=>a.pricing_uplift_usd-b.pricing_uplift_usd);
+  charts.push(new Chart(c_pricing,{type:'bar',data:{labels:pc.map(r=>r.category),datasets:[{label:'Incremental GMV',
+    data:pc.map(r=>r.pricing_uplift_usd),backgroundColor:accent,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>`${usd0(c.raw)} · +${pc[c.dataIndex].uplift_pct}%`}}},
+      scales:{x:{...gl,ticks:{...gl.ticks,callback:v=>usd(v)}},y:{...noGrid,ticks:{...noGrid.ticks,font:{size:10}}}}}}));
+
+  const lt=DATA.leadtime;
+  charts.push(new Chart(c_leadtime,{data:{labels:lt.map(r=>r.lead_time_bucket),datasets:[
+    {type:'bar',label:'Bookings',data:lt.map(r=>r.bookings),backgroundColor:'rgba(125,133,146,.45)',borderRadius:3,yAxisID:'y',order:2},
+    {type:'line',label:'Avg price multiplier',data:lt.map(r=>r.avg_price_multiplier),borderColor:accent,backgroundColor:accent,pointRadius:3,borderWidth:2,tension:.2,yAxisID:'y1',order:1}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},
+      scales:{y:{...gl,ticks:{...gl.ticks}},y1:{...noGrid,position:'right',ticks:{...noGrid.ticks,callback:v=>v.toFixed(2)+'x'}},
+        x:{...noGrid,ticks:{...noGrid.ticks,font:{size:9}}}}}}));
+}
+
+/* ---------- static tables ---------- */
+function renderTables(){
+  table('t_region',[{h:'Region',k:'region'},{h:'Tier',k:'city_tier',num:true,f:v=>'T'+v},
+    {h:'Bookings',k:'bookings',num:true,f:v=>nf.format(v)},{h:'GMV',k:'gmv_usd',num:true,f:usd0},
+    {h:'% GMV',k:'pct_of_total_gmv',num:true,f:v=>v+'%'},{h:'Cumul.',k:'running_pct_of_gmv',num:true,f:v=>v+'%'}], DATA.region);
+  table('t_channels',[{h:'Channel',k:'channel'},{h:'Sessions',k:'sessions',num:true,f:v=>nf.format(v)},
+    {h:'Conv%',k:'conversion_pct',num:true,f:v=>v+'%'},{h:'Spend',k:'spend_usd',num:true,f:v=>v>0?usd0(v):'–'},
+    {h:'Net rev',k:'net_revenue_usd',num:true,f:usd0},{h:'CAC',k:'cac_usd',num:true,f:v=>v==null?'–':'$'+v},
+    {h:'ROAS',k:'roas_on_net_rev',num:true,f:v=>v==null?'–':v.toFixed(2)+'x'},{h:'Call',k:'recommendation',f:recPill}], DATA.channels);
+  table('t_device',[{h:'Device',k:'device'},{h:'Sessions',k:'sessions',num:true,f:v=>nf.format(v)},
+    {h:'Cart→Checkout',k:'cart_to_checkout_pct',num:true,f:v=>v+'%'},{h:'Checkout→Book',k:'checkout_to_book_pct',num:true,f:v=>v+'%'},
+    {h:'Overall',k:'overall_conversion_pct',num:true,f:v=>v+'%'}], DATA.device);
+  table('t_cities',[{h:'City',k:'city'},{h:'Bookings',k:'bookings',num:true,f:v=>nf.format(v)},
+    {h:'GMV',k:'gmv_usd',num:true,f:usd0},{h:'Cancel%',k:'cancellation_rate_pct',num:true,f:v=>v+'%'},
+    {h:'Rating',k:'avg_rating',num:true,f:v=>v==null?'–':v.toFixed(2)},{h:'Lead d',k:'avg_lead_days',num:true,f:v=>v.toFixed(1)}], DATA.cities);
+}
+
+/* ---------- insight callouts ---------- */
+function renderInsights(){
+  const h=DATA.headline, m=DATA.monthly;
+  const growth=(m[m.length-1].gmv_usd/m[0].gmv_usd).toFixed(1);
+  document.getElementById('ins_overview').innerHTML=
+    `<b>Takeaway:</b> GMV grew ~${growth}x over 18 months to ${usd(m[m.length-1].gmv_usd)}/mo, with a clear summer peak. Take rate held near ${h.take_rate_pct}%.`;
+  const disp=DATA.channels.find(c=>c.channel==='Display'), aff=DATA.channels.find(c=>c.channel==='Affiliates');
+  document.getElementById('ins_growth').innerHTML=
+    `<b>Action:</b> cut or fix Display (${disp.roas_on_net_rev}x ROAS, losing ${usd0(disp.spend_usd-disp.net_revenue_usd)}); move budget to Affiliates (${aff.roas_on_net_rev}x, $${aff.cac_usd} CAC) and Paid Social.`;
+  const dev=DATA.device, mob=dev.find(d=>d.device==='Mobile'), desk=dev.find(d=>d.device==='Desktop');
+  const gap=(100*(1-mob.checkout_to_book_pct/desk.checkout_to_book_pct)).toFixed(0);
+  const share=(100*mob.sessions/dev.reduce((s,d)=>s+d.sessions,0)).toFixed(0);
+  document.getElementById('ins_device').innerHTML=
+    `<b>Biggest product lever:</b> mobile checkout converts ${gap}% worse than desktop (${mob.checkout_to_book_pct}% vs ${desk.checkout_to_book_pct}%) and it's ${share}% of traffic. See the Scenario Simulator for the upside.`;
+  const sup=DATA.suppliers_top, top=sup[sup.length-1].running_gmv_share_pct;
+  document.getElementById('ins_supply').innerHTML=
+    `<b>Concentration risk:</b> the top 25 suppliers are already ${top}% of GMV — worth a retention/SLA focus on the head.`;
+}
+
+/* ---------- tabs & theme ---------- */
+function setTab(name){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected', b.dataset.tab===name));
+  document.querySelectorAll('[data-panel]').forEach(p=>p.hidden = p.dataset.panel!==name);
+  try{ history.replaceState(null,'','#'+name); }catch(e){}
+}
+function currentDark(){const t=document.documentElement.getAttribute('data-theme');
+  return t?t==='dark':window.matchMedia('(prefers-color-scheme:dark)').matches;}
+function toggleTheme(){document.documentElement.setAttribute('data-theme',currentDark()?'light':'dark');
+  try{buildCharts();}catch(e){chartFallback(e);}}
+
+/* ---------- boot: wire navigation FIRST, charts last & isolated ---------- */
+function boot(){
+  const meta=DATA.meta;
+  document.getElementById('asof').innerHTML=`as of ${meta.as_of_date}<br>${meta.window}`;
+  document.getElementById('foot').innerHTML=
+    `Simulated dataset · ${nf.format(DATA.headline.bookings)} realised bookings · built ${meta.generated_at.replace('T',' ').replace('+00:00','Z')} · figures are illustrative.`;
+
+  // navigation + theme handlers go on before anything that could throw
+  document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('button'); if(b) setTab(b.dataset.tab);});
+  document.getElementById('themeBtn').addEventListener('click',toggleTheme);
+  const hash=(location.hash||'').replace('#','');
+  if(['overview','growth','product','supply','simulator'].includes(hash)) setTab(hash);
+  window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{
+    if(!document.documentElement.getAttribute('data-theme')){try{buildCharts();}catch(e){chartFallback(e);}}});
+
+  renderKPIs(); renderHealth(); renderFunnel(); renderCohort();
+  renderExperiment(); renderTables(); renderInsights(); renderSimulator();
+  try{ buildCharts(); }catch(e){ chartFallback(e); }
+}
+boot();
+</script>

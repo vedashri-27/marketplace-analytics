@@ -1,0 +1,1837 @@
+<title>Marketplace Analytics</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  /* sticky header + KPI strip, then tabbed panels of charts/tables/sim */
+  :root{
+    --bg:#FBFAF8; --panel:#FFFFFF; --panel-2:#F4F2EE; --ink:#1B2430; --muted:#5B6672;
+    --line:#E7E3DC; --accent:#3D5AFE; --accent-soft:#ECEFFF; --teal:#0D9488;
+    --good:#15A34A; --warn:#D97706; --bad:#DC2626; --grid:#ECE9E3;
+    --font:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --shadow:0 1px 2px rgba(16,24,40,.04),0 4px 16px rgba(16,24,40,.05);
+    --radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#0E131A; --panel:#161D27; --panel-2:#1C2531; --ink:#E8EDF3; --muted:#9AA7B5;
+    --line:#26303C; --accent:#8AA0FF; --accent-soft:#1E2740; --teal:#2DD4BF;
+    --good:#34D399; --warn:#FBBF24; --bad:#F87171; --grid:#232D39; color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0E131A; --panel:#161D27; --panel-2:#1C2531; --ink:#E8EDF3; --muted:#9AA7B5;
+    --line:#26303C; --accent:#8AA0FF; --accent-soft:#1E2740; --teal:#2DD4BF;
+    --good:#34D399; --warn:#FBBF24; --bad:#F87171; --grid:#232D39; color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.45;
+    -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+  .wrap{max-width:1180px;margin:0 auto;padding-inline:20px}
+
+  header.app{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+    background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line)}
+  .head-row{display:flex;align-items:center;gap:16px;padding-block:14px;flex-wrap:wrap}
+  .brand h1{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em}
+  .brand p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+  .head-spacer{flex:1}
+  .asof{font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:right;line-height:1.5}
+  .toggle{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+    width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:16px;display:grid;place-items:center}
+  .toggle:hover{border-color:var(--accent)}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+  @media(max-width:860px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 15px;box-shadow:var(--shadow)}
+  .kpi .label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .kpi .val{font-family:var(--mono);font-size:25px;font-weight:600;margin-top:6px;letter-spacing:-.02em}
+  .kpi .sub{font-size:11.5px;color:var(--muted);margin-top:3px}
+  .kpi .sub.good{color:var(--good)} .kpi .sub.bad{color:var(--bad)}
+
+  nav.tabs{display:flex;gap:4px;margin:22px 0 4px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  nav.tabs button{appearance:none;border:0;background:none;color:var(--muted);font-family:var(--font);
+    font-size:14px;font-weight:600;padding:10px 14px;cursor:pointer;border-bottom:2px solid transparent;
+    margin-bottom:-1px;border-radius:6px 6px 0 0}
+  nav.tabs button:hover{color:var(--ink);background:var(--panel-2)}
+  nav.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+
+  .grid{display:grid;gap:16px;margin:16px 0 30px}
+  .cols-2{grid-template-columns:1fr 1fr}
+  .cols-3-2{grid-template-columns:3fr 2fr}
+  @media(max-width:820px){.cols-2,.cols-3-2{grid-template-columns:1fr}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 17px;box-shadow:var(--shadow);min-width:0}
+  .card h3{margin:0 0 2px;font-size:15px;font-weight:600;letter-spacing:-.01em}
+  .card .cap{margin:0 0 12px;font-size:12.5px;color:var(--muted)}
+  .chart-box{position:relative;height:300px}
+  .chart-box.tall{height:340px}
+  .chart-missing{display:flex;height:100%;align-items:center;justify-content:center;text-align:center;
+    color:var(--muted);font-size:12.5px;padding:0 20px}
+
+  table{width:100%;border-collapse:collapse;font-size:12.8px}
+  th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  thead th{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  tbody tr:hover{background:var(--panel-2)}
+  td.num,th.num{font-family:var(--mono)}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .pill.scale{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+  .pill.optimise{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+  .pill.cut{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+  .pill.owned{background:var(--panel-2);color:var(--muted)}
+
+  /* health index hero */
+  .hero{display:grid;grid-template-columns:210px 1fr;gap:22px;align-items:center}
+  @media(max-width:760px){.hero{grid-template-columns:1fr}}
+  .hi-num{font-family:var(--mono);font-size:62px;font-weight:600;line-height:1;letter-spacing:-.03em;color:var(--accent)}
+  .hi-num span{font-size:22px;color:var(--muted)}
+  .hi-lab{font-size:13px;font-weight:600;margin-top:4px}
+  .hi-cap{font-size:12px;color:var(--muted);margin-top:4px}
+  .hi-comp{display:flex;flex-direction:column;gap:9px}
+  .hc{display:grid;grid-template-columns:120px 1fr 74px;gap:10px;align-items:center;font-size:12.5px}
+  .hc .trk{background:var(--panel-2);border-radius:6px;height:16px;overflow:hidden}
+  .hc .fil{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--teal))}
+  .hc .sc{font-family:var(--mono);text-align:right;color:var(--muted)}
+
+  /* funnel */
+  .funnel{display:flex;flex-direction:column;gap:9px}
+  .fstage{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center}
+  .fstage .lab{font-size:12.5px;color:var(--muted)}
+  .fbar-track{background:var(--panel-2);border-radius:7px;overflow:hidden;height:30px}
+  .fbar{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));
+    display:flex;align-items:center;justify-content:flex-end;padding-right:9px;color:#fff;
+    font-family:var(--mono);font-size:11.5px;font-weight:600;min-width:62px}
+  .fdrop{font-size:10.5px;color:var(--bad);font-family:var(--mono)}
+
+  /* cohort */
+  .heat{overflow-x:auto}
+  .heat table{font-size:11.5px;min-width:430px}
+  .heat td.cell{font-family:var(--mono);font-weight:600;text-align:center;border:2px solid var(--panel)}
+
+  /* experiment */
+  .exp-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;align-items:center}
+  @media(max-width:820px){.exp-grid{grid-template-columns:1fr}}
+  .exp-stat{text-align:center}
+  .exp-stat .big{font-family:var(--mono);font-size:44px;font-weight:600;color:var(--good);letter-spacing:-.02em}
+  .exp-stat .lbl{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .exp-meta{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;margin-top:12px;font-size:12.5px;color:var(--muted)}
+  .exp-meta b{color:var(--ink);font-family:var(--mono)}
+  .verdict{margin-top:14px;text-align:center;font-weight:700;color:var(--good)}
+  .armbars{display:flex;flex-direction:column;gap:12px}
+  .arm{display:grid;grid-template-columns:78px 1fr 58px;gap:10px;align-items:center;font-size:12.5px}
+  .arm .track{background:var(--panel-2);border-radius:7px;height:26px;overflow:hidden}
+  .arm .fill{height:100%;border-radius:7px}
+  .arm .fill.c{background:var(--muted)} .arm .fill.t{background:var(--good)}
+  .arm .pct{font-family:var(--mono);font-weight:600}
+
+  /* simulator */
+  .sim-label{font-size:13px;font-weight:600;margin:6px 0 6px}
+  .sim-label b{font-family:var(--mono);color:var(--accent)}
+  input[type=range]{width:100%;accent-color:var(--accent);height:26px}
+  .sim-out{display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:12px}
+  .sim-metric .v{font-family:var(--mono);font-size:24px;font-weight:600}
+  .sim-metric .k{font-size:11.5px;color:var(--muted)}
+  .sim-metric .v.good{color:var(--good)} .sim-metric .v.bad{color:var(--bad)}
+
+  .note{font-size:11.5px;color:var(--muted);margin-top:10px}
+  footer{border-top:1px solid var(--line);margin-top:10px;padding:18px 0 34px;color:var(--muted);font-size:12px}
+  .insight{font-size:12.8px;color:var(--ink);background:var(--accent-soft);border:1px solid var(--line);
+    border-radius:10px;padding:9px 12px;margin-top:12px}
+  .insight b{color:var(--accent)}
+</style>
+
+<header class="app">
+  <div class="wrap head-row">
+    <div class="brand">
+      <h1>Marketplace Analytics</h1>
+      <p>A simulated two-sided experiences marketplace · growth, product &amp; supply</p>
+    </div>
+    <div class="head-spacer"></div>
+    <div class="asof" id="asof"></div>
+    <button class="toggle" id="themeBtn" title="Toggle light/dark" aria-label="Toggle theme">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="kpis" id="kpis"></section>
+
+  <nav class="tabs" id="tabs" role="tablist">
+    <button role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button role="tab" data-tab="growth" aria-selected="false">Growth &amp; Marketing</button>
+    <button role="tab" data-tab="product" aria-selected="false">Product &amp; Experiment</button>
+    <button role="tab" data-tab="supply" aria-selected="false">Supply &amp; Pricing</button>
+    <button role="tab" data-tab="simulator" aria-selected="false">Scenario Simulator</button>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <section data-panel="overview">
+    <div class="grid">
+      <div class="card">
+        <h3>Marketplace Health Index</h3>
+        <p class="cap">A single 0–100 score I blended from five drivers (weights in the project notes).</p>
+        <div class="hero">
+          <div>
+            <div class="hi-num" id="hi_num">–<span>/100</span></div>
+            <div class="hi-lab" id="hi_lab"></div>
+            <div class="hi-cap">Weighted: growth, conversion, retention, marketing ROAS, supply spread.</div>
+          </div>
+          <div class="hi-comp" id="hi_comp"></div>
+        </div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>GMV &amp; month-over-month growth</h3>
+        <p class="cap">Realised gross booking value by month, with MoM growth overlaid.</p>
+        <div class="chart-box tall"><canvas id="c_monthly"></canvas></div>
+        <div class="insight" id="ins_overview"></div>
+      </div>
+    </div>
+    <div class="grid cols-3-2">
+      <div class="card">
+        <h3>Conversion funnel</h3>
+        <p class="cap">Session to booking across the whole journey.</p>
+        <div class="funnel" id="funnel"></div>
+      </div>
+      <div class="card">
+        <h3>Where GMV comes from</h3>
+        <p class="cap">Region and city-tier, with running share.</p>
+        <div class="scroll"><table id="t_region"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GROWTH -->
+  <section data-panel="growth" hidden>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Paid channel efficiency</h3>
+        <p class="cap">ROAS on net revenue; break-even is 1.0x.</p>
+        <div class="chart-box"><canvas id="c_roas"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Acquisition-channel 90-day value</h3>
+        <p class="cap">Average net revenue in the first 90 days, by first-touch channel.</p>
+        <div class="chart-box"><canvas id="c_ltv"></canvas></div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Channel scorecard</h3>
+        <p class="cap">Funnel, spend, CAC, ROAS and the call it implies.</p>
+        <div class="scroll"><table id="t_channels"></table></div>
+        <div class="insight" id="ins_growth"></div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Signup-cohort repeat-purchase retention</h3>
+        <p class="cap">Share of each monthly cohort that books again, by months since signup.</p>
+        <div class="heat"><table id="t_cohort"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCT -->
+  <section data-panel="product" hidden>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Funnel by device</h3>
+        <p class="cap">Checkout-to-book conversion by device.</p>
+        <div class="scroll"><table id="t_device"></table></div>
+        <div class="insight" id="ins_device"></div>
+      </div>
+      <div class="card">
+        <h3>A/B test: checkout_v2</h3>
+        <p class="cap">Randomised post-launch traffic, two-proportion z-test.</p>
+        <div class="exp-grid">
+          <div class="exp-stat">
+            <div class="big" id="exp_lift"></div>
+            <div class="lbl">relative lift in conversion</div>
+            <div class="exp-meta" id="exp_meta"></div>
+            <div class="verdict" id="exp_verdict"></div>
+          </div>
+          <div class="armbars" id="exp_bars"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUPPLY -->
+  <section data-panel="supply" hidden>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Supplier concentration (Pareto)</h3>
+        <p class="cap">Top 25 suppliers by GMV; line is cumulative share.</p>
+        <div class="chart-box"><canvas id="c_pareto"></canvas></div>
+        <div class="insight" id="ins_supply"></div>
+      </div>
+      <div class="card">
+        <h3>Dynamic-pricing uplift by category</h3>
+        <p class="cap">Incremental GMV captured over flat base prices.</p>
+        <div class="chart-box"><canvas id="c_pricing"></canvas></div>
+      </div>
+    </div>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Lead time &amp; the last-minute premium</h3>
+        <p class="cap">Price multiplier and volume by booking lead time.</p>
+        <div class="chart-box"><canvas id="c_leadtime"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>City operational health</h3>
+        <p class="cap">GMV, cancellation rate and rating by city.</p>
+        <div class="scroll"><table id="t_cities"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIMULATOR -->
+  <section data-panel="simulator" hidden>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Shift paid budget</h3>
+        <p class="cap">Move spend from the worst-ROAS channel (Display) to the best (Affiliates) and see the effect.</p>
+        <div class="sim-label">Move <b id="bg_amt"></b> from Display → Affiliates</div>
+        <input type="range" id="bg_slider" min="0" max="100" step="1" value="50" aria-label="Budget to move">
+        <div class="sim-out" id="bg_out"></div>
+        <p class="note">Simple linear-at-the-margin estimate over the 18-month period. Real channels hit diminishing returns as you scale, so read this as an optimistic upper bound, not a promise.</p>
+      </div>
+      <div class="card">
+        <h3>Fix mobile checkout</h3>
+        <p class="cap">Mobile converts worse than desktop at checkout. Close part of that gap and see the upside.</p>
+        <div class="sim-label">Close <b id="mb_pct"></b> of the mobile→desktop gap</div>
+        <input type="range" id="mb_slider" min="0" max="100" step="5" value="50" aria-label="Share of gap closed">
+        <div class="sim-out" id="mb_out"></div>
+        <p class="note">Assumes desktop-level checkout conversion is reachable on mobile. Totals are over the 18 months in the dataset.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="wrap" id="foot"></footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
+<script>
+const DATA = {
+  "meta": {
+    "generated_at": "2026-10-05T18:08:18+00:00",
+    "as_of_date": "2026-10-05",
+    "window": "2025-04 to 2026-09 (18 months)",
+    "currency": "USD"
+  },
+  "headline": {
+    "gmv_usd": 5234683.74,
+    "net_revenue_usd": 1189976.34,
+    "bookings": 18574,
+    "aov_usd": 281.8,
+    "take_rate_pct": 22.7,
+    "conversion_pct": 5.52,
+    "repeat_rate_pct": 22.5,
+    "paid_blended_roas": 1.18,
+    "paid_spend_usd": 283509.0,
+    "latest_mom_growth_pct": -0.4,
+    "health_index": 67.2,
+    "recent_quarter_growth_pct": 52.1
+  },
+  "health_components": [
+    {
+      "name": "Growth",
+      "score": 100.0,
+      "weight": 30
+    },
+    {
+      "name": "Conversion",
+      "score": 63.0,
+      "weight": 20
+    },
+    {
+      "name": "Retention",
+      "score": 50.0,
+      "weight": 15
+    },
+    {
+      "name": "Marketing ROAS",
+      "score": 31.7,
+      "weight": 20
+    },
+    {
+      "name": "Supply spread",
+      "score": 72.1,
+      "weight": 15
+    }
+  ],
+  "monthly": [
+    {
+      "year_month": "2025-04",
+      "bookings": 224,
+      "gmv_usd": 54790.0,
+      "net_revenue_usd": 12217.0,
+      "aov_usd": 244.6,
+      "take_rate_pct": 22.3,
+      "gmv_mom_growth_pct": null
+    },
+    {
+      "year_month": "2025-05",
+      "bookings": 291,
+      "gmv_usd": 81129.0,
+      "net_revenue_usd": 18608.0,
+      "aov_usd": 278.8,
+      "take_rate_pct": 22.9,
+      "gmv_mom_growth_pct": 48.1
+    },
+    {
+      "year_month": "2025-06",
+      "bookings": 384,
+      "gmv_usd": 109270.0,
+      "net_revenue_usd": 25004.0,
+      "aov_usd": 284.6,
+      "take_rate_pct": 22.9,
+      "gmv_mom_growth_pct": 34.7
+    },
+    {
+      "year_month": "2025-07",
+      "bookings": 451,
+      "gmv_usd": 131990.0,
+      "net_revenue_usd": 30246.0,
+      "aov_usd": 292.7,
+      "take_rate_pct": 22.9,
+      "gmv_mom_growth_pct": 20.8
+    },
+    {
+      "year_month": "2025-08",
+      "bookings": 510,
+      "gmv_usd": 152593.0,
+      "net_revenue_usd": 34994.0,
+      "aov_usd": 299.2,
+      "take_rate_pct": 22.9,
+      "gmv_mom_growth_pct": 15.6
+    },
+    {
+      "year_month": "2025-09",
+      "bookings": 509,
+      "gmv_usd": 151890.0,
+      "net_revenue_usd": 34122.0,
+      "aov_usd": 298.4,
+      "take_rate_pct": 22.5,
+      "gmv_mom_growth_pct": -0.5
+    },
+    {
+      "year_month": "2025-10",
+      "bookings": 586,
+      "gmv_usd": 165659.0,
+      "net_revenue_usd": 37541.0,
+      "aov_usd": 282.7,
+      "take_rate_pct": 22.7,
+      "gmv_mom_growth_pct": 9.1
+    },
+    {
+      "year_month": "2025-11",
+      "bookings": 648,
+      "gmv_usd": 179569.0,
+      "net_revenue_usd": 40467.0,
+      "aov_usd": 277.1,
+      "take_rate_pct": 22.5,
+      "gmv_mom_growth_pct": 8.4
+    },
+    {
+      "year_month": "2025-12",
+      "bookings": 776,
+      "gmv_usd": 215584.0,
+      "net_revenue_usd": 49009.0,
+      "aov_usd": 277.8,
+      "take_rate_pct": 22.7,
+      "gmv_mom_growth_pct": 20.1
+    },
+    {
+      "year_month": "2026-01",
+      "bookings": 793,
+      "gmv_usd": 225073.0,
+      "net_revenue_usd": 51897.0,
+      "aov_usd": 283.8,
+      "take_rate_pct": 23.1,
+      "gmv_mom_growth_pct": 4.4
+    },
+    {
+      "year_month": "2026-02",
+      "bookings": 784,
+      "gmv_usd": 213235.0,
+      "net_revenue_usd": 48004.0,
+      "aov_usd": 272.0,
+      "take_rate_pct": 22.5,
+      "gmv_mom_growth_pct": -5.3
+    },
+    {
+      "year_month": "2026-03",
+      "bookings": 1128,
+      "gmv_usd": 319370.0,
+      "net_revenue_usd": 72671.0,
+      "aov_usd": 283.1,
+      "take_rate_pct": 22.8,
+      "gmv_mom_growth_pct": 49.8
+    },
+    {
+      "year_month": "2026-04",
+      "bookings": 1234,
+      "gmv_usd": 354045.0,
+      "net_revenue_usd": 79987.0,
+      "aov_usd": 286.9,
+      "take_rate_pct": 22.6,
+      "gmv_mom_growth_pct": 10.9
+    },
+    {
+      "year_month": "2026-05",
+      "bookings": 1522,
+      "gmv_usd": 425373.0,
+      "net_revenue_usd": 97202.0,
+      "aov_usd": 279.5,
+      "take_rate_pct": 22.9,
+      "gmv_mom_growth_pct": 20.1
+    },
+    {
+      "year_month": "2026-06",
+      "bookings": 1762,
+      "gmv_usd": 503485.0,
+      "net_revenue_usd": 114333.0,
+      "aov_usd": 285.7,
+      "take_rate_pct": 22.7,
+      "gmv_mom_growth_pct": 18.4
+    },
+    {
+      "year_month": "2026-07",
+      "bookings": 2116,
+      "gmv_usd": 590728.0,
+      "net_revenue_usd": 134788.0,
+      "aov_usd": 279.2,
+      "take_rate_pct": 22.8,
+      "gmv_mom_growth_pct": 17.3
+    },
+    {
+      "year_month": "2026-08",
+      "bookings": 2378,
+      "gmv_usd": 681671.0,
+      "net_revenue_usd": 154592.0,
+      "aov_usd": 286.7,
+      "take_rate_pct": 22.7,
+      "gmv_mom_growth_pct": 15.4
+    },
+    {
+      "year_month": "2026-09",
+      "bookings": 2478,
+      "gmv_usd": 679231.0,
+      "net_revenue_usd": 154294.0,
+      "aov_usd": 274.1,
+      "take_rate_pct": 22.7,
+      "gmv_mom_growth_pct": -0.4
+    }
+  ],
+  "region": [
+    {
+      "region": "Europe",
+      "city_tier": 1,
+      "bookings": 6025,
+      "gmv_usd": 1641973.0,
+      "pct_of_total_gmv": 31.4,
+      "running_pct_of_gmv": 31.4
+    },
+    {
+      "region": "North America",
+      "city_tier": 1,
+      "bookings": 4088,
+      "gmv_usd": 1175501.0,
+      "pct_of_total_gmv": 22.5,
+      "running_pct_of_gmv": 53.8
+    },
+    {
+      "region": "Europe",
+      "city_tier": 2,
+      "bookings": 2415,
+      "gmv_usd": 796140.0,
+      "pct_of_total_gmv": 15.2,
+      "running_pct_of_gmv": 69.0
+    },
+    {
+      "region": "APAC",
+      "city_tier": 2,
+      "bookings": 1699,
+      "gmv_usd": 400761.0,
+      "pct_of_total_gmv": 7.7,
+      "running_pct_of_gmv": 76.7
+    },
+    {
+      "region": "Middle East",
+      "city_tier": 1,
+      "bookings": 1136,
+      "gmv_usd": 362981.0,
+      "pct_of_total_gmv": 6.9,
+      "running_pct_of_gmv": 83.6
+    },
+    {
+      "region": "North America",
+      "city_tier": 2,
+      "bookings": 1318,
+      "gmv_usd": 324605.0,
+      "pct_of_total_gmv": 6.2,
+      "running_pct_of_gmv": 89.8
+    },
+    {
+      "region": "APAC",
+      "city_tier": 1,
+      "bookings": 1117,
+      "gmv_usd": 288789.0,
+      "pct_of_total_gmv": 5.5,
+      "running_pct_of_gmv": 95.3
+    },
+    {
+      "region": "LATAM",
+      "city_tier": 2,
+      "bookings": 776,
+      "gmv_usd": 243934.0,
+      "pct_of_total_gmv": 4.7,
+      "running_pct_of_gmv": 100.0
+    }
+  ],
+  "channels": [
+    {
+      "channel": "Organic Search",
+      "sessions": 103180,
+      "bookings": 5775,
+      "conversion_pct": 5.6,
+      "spend_usd": 0.0,
+      "gmv_usd": 1504436.0,
+      "net_revenue_usd": 342496.0,
+      "cac_usd": null,
+      "roas_on_net_rev": null,
+      "roas_on_gmv": null,
+      "recommendation": "Organic / owned"
+    },
+    {
+      "channel": "Direct",
+      "sessions": 73313,
+      "bookings": 5101,
+      "conversion_pct": 6.96,
+      "spend_usd": 0.0,
+      "gmv_usd": 1316335.0,
+      "net_revenue_usd": 300010.0,
+      "cac_usd": null,
+      "roas_on_net_rev": null,
+      "roas_on_gmv": null,
+      "recommendation": "Organic / owned"
+    },
+    {
+      "channel": "Email",
+      "sessions": 47183,
+      "bookings": 3687,
+      "conversion_pct": 7.81,
+      "spend_usd": 0.0,
+      "gmv_usd": 932160.0,
+      "net_revenue_usd": 211742.0,
+      "cac_usd": null,
+      "roas_on_net_rev": null,
+      "roas_on_gmv": null,
+      "recommendation": "Organic / owned"
+    },
+    {
+      "channel": "Paid Search",
+      "sessions": 63382,
+      "bookings": 3084,
+      "conversion_pct": 4.87,
+      "spend_usd": 165781.0,
+      "gmv_usd": 788779.0,
+      "net_revenue_usd": 178250.0,
+      "cac_usd": 53.8,
+      "roas_on_net_rev": 1.08,
+      "roas_on_gmv": 4.8,
+      "recommendation": "Optimise"
+    },
+    {
+      "channel": "Paid Social",
+      "sessions": 40932,
+      "bookings": 1333,
+      "conversion_pct": 3.26,
+      "spend_usd": 45012.0,
+      "gmv_usd": 337611.0,
+      "net_revenue_usd": 76692.0,
+      "cac_usd": 33.8,
+      "roas_on_net_rev": 1.7,
+      "roas_on_gmv": 7.5,
+      "recommendation": "Scale"
+    },
+    {
+      "channel": "Affiliates",
+      "sessions": 22596,
+      "bookings": 988,
+      "conversion_pct": 4.37,
+      "spend_usd": 31723.0,
+      "gmv_usd": 251224.0,
+      "net_revenue_usd": 57168.0,
+      "cac_usd": 32.1,
+      "roas_on_net_rev": 1.8,
+      "roas_on_gmv": 7.9,
+      "recommendation": "Scale"
+    },
+    {
+      "channel": "Display",
+      "sessions": 18625,
+      "bookings": 414,
+      "conversion_pct": 2.22,
+      "spend_usd": 40993.0,
+      "gmv_usd": 104139.0,
+      "net_revenue_usd": 23619.0,
+      "cac_usd": 99.0,
+      "roas_on_net_rev": 0.58,
+      "roas_on_gmv": 2.5,
+      "recommendation": "Cut / fix"
+    }
+  ],
+  "ltv": [
+    {
+      "acquisition_channel": "Direct",
+      "customers_acquired": 1436,
+      "avg_90d_net_rev_usd": 81.1,
+      "total_90d_net_rev_usd": 116390.0
+    },
+    {
+      "acquisition_channel": "Paid Social",
+      "customers_acquired": 1601,
+      "avg_90d_net_rev_usd": 78.8,
+      "total_90d_net_rev_usd": 126154.0
+    },
+    {
+      "acquisition_channel": "Display",
+      "customers_acquired": 764,
+      "avg_90d_net_rev_usd": 78.1,
+      "total_90d_net_rev_usd": 59632.0
+    },
+    {
+      "acquisition_channel": "Organic Search",
+      "customers_acquired": 2682,
+      "avg_90d_net_rev_usd": 77.8,
+      "total_90d_net_rev_usd": 208761.0
+    },
+    {
+      "acquisition_channel": "Paid Search",
+      "customers_acquired": 2300,
+      "avg_90d_net_rev_usd": 76.9,
+      "total_90d_net_rev_usd": 176974.0
+    },
+    {
+      "acquisition_channel": "Affiliates",
+      "customers_acquired": 773,
+      "avg_90d_net_rev_usd": 76.5,
+      "total_90d_net_rev_usd": 59121.0
+    },
+    {
+      "acquisition_channel": "Email",
+      "customers_acquired": 671,
+      "avg_90d_net_rev_usd": 76.4,
+      "total_90d_net_rev_usd": 51276.0
+    }
+  ],
+  "funnel": [
+    {
+      "stage": "Session",
+      "users": 369211,
+      "pct_of_sessions": 100.0,
+      "step_conversion_pct": null,
+      "users_lost_vs_prev": null
+    },
+    {
+      "stage": "Viewed experience",
+      "users": 299362,
+      "pct_of_sessions": 81.1,
+      "step_conversion_pct": 81.1,
+      "users_lost_vs_prev": 69849.0
+    },
+    {
+      "stage": "Added to cart",
+      "users": 108090,
+      "pct_of_sessions": 29.3,
+      "step_conversion_pct": 36.1,
+      "users_lost_vs_prev": 191272.0
+    },
+    {
+      "stage": "Checkout started",
+      "users": 60615,
+      "pct_of_sessions": 16.4,
+      "step_conversion_pct": 56.1,
+      "users_lost_vs_prev": 47475.0
+    },
+    {
+      "stage": "Booked",
+      "users": 20382,
+      "pct_of_sessions": 5.5,
+      "step_conversion_pct": 33.6,
+      "users_lost_vs_prev": 40233.0
+    }
+  ],
+  "device": [
+    {
+      "device": "Mobile",
+      "sessions": 228389,
+      "view_to_cart_equiv_pct": 29.2,
+      "cart_to_checkout_pct": 55.9,
+      "checkout_to_book_pct": 30.1,
+      "overall_conversion_pct": 4.92
+    },
+    {
+      "device": "Desktop",
+      "sessions": 122447,
+      "view_to_cart_equiv_pct": 29.4,
+      "cart_to_checkout_pct": 56.2,
+      "checkout_to_book_pct": 39.7,
+      "overall_conversion_pct": 6.57
+    },
+    {
+      "device": "Tablet",
+      "sessions": 18375,
+      "view_to_cart_equiv_pct": 29.2,
+      "cart_to_checkout_pct": 56.6,
+      "checkout_to_book_pct": 36.6,
+      "overall_conversion_pct": 6.04
+    }
+  ],
+  "device_checkout": [
+    {
+      "device": "Mobile",
+      "checkout_started": 37334,
+      "booked": 11234,
+      "checkout_to_book_pct": 30.09
+    },
+    {
+      "device": "Desktop",
+      "checkout_started": 20247,
+      "booked": 8039,
+      "checkout_to_book_pct": 39.7
+    },
+    {
+      "device": "Tablet",
+      "checkout_started": 3034,
+      "booked": 1109,
+      "checkout_to_book_pct": 36.55
+    }
+  ],
+  "cohort": {
+    "cohorts": [
+      "2025-04",
+      "2025-05",
+      "2025-06",
+      "2025-07",
+      "2025-08",
+      "2025-09",
+      "2025-10",
+      "2025-11",
+      "2025-12",
+      "2026-01",
+      "2026-02",
+      "2026-03"
+    ],
+    "months": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "matrix": [
+      [
+        0.7,
+        1.2,
+        2.8,
+        1.9,
+        2.5,
+        2.2,
+        1.9
+      ],
+      [
+        1.0,
+        2.5,
+        2.1,
+        2.3,
+        1.9,
+        1.5,
+        2.4
+      ],
+      [
+        1.1,
+        3.3,
+        2.8,
+        2.5,
+        2.6,
+        1.7,
+        2.3
+      ],
+      [
+        0.8,
+        2.8,
+        1.9,
+        2.6,
+        2.2,
+        2.4,
+        2.1
+      ],
+      [
+        1.1,
+        2.5,
+        1.9,
+        2.5,
+        2.5,
+        1.6,
+        2.0
+      ],
+      [
+        0.9,
+        2.7,
+        2.9,
+        2.6,
+        2.6,
+        1.9,
+        2.9
+      ],
+      [
+        1.1,
+        2.6,
+        3.2,
+        2.5,
+        2.3,
+        2.7,
+        2.8
+      ],
+      [
+        1.3,
+        3.5,
+        2.9,
+        2.2,
+        3.3,
+        3.4,
+        2.9
+      ],
+      [
+        1.7,
+        3.1,
+        2.4,
+        3.5,
+        3.1,
+        3.3,
+        2.5
+      ],
+      [
+        1.4,
+        3.6,
+        4.0,
+        4.1,
+        4.3,
+        3.5,
+        3.3
+      ],
+      [
+        1.5,
+        5.2,
+        4.6,
+        5.1,
+        4.7,
+        3.9,
+        2.8
+      ],
+      [
+        2.6,
+        4.8,
+        5.8,
+        5.6,
+        4.1,
+        3.4,
+        1.9
+      ]
+    ]
+  },
+  "experiment": {
+    "control": {
+      "sessions": 73264,
+      "bookings": 4441
+    },
+    "treatment": {
+      "sessions": 73214,
+      "bookings": 5174
+    },
+    "control_rate": 0.0606,
+    "treatment_rate": 0.0707,
+    "abs_lift_pp": 1.0053,
+    "rel_lift_pct": 16.5849,
+    "z": 7.7681,
+    "p_value": 0.0,
+    "ci_low_pp": 0.7517,
+    "ci_high_pp": 1.2589,
+    "significant": true
+  },
+  "leadtime": [
+    {
+      "lead_time_bucket": "0-2 d (last minute)",
+      "bucket_order": 1,
+      "bookings": 885,
+      "avg_price_multiplier": 1.141,
+      "avg_booking_value_usd": 300.3,
+      "pct_of_bookings": 4.8
+    },
+    {
+      "lead_time_bucket": "3-7 d",
+      "bucket_order": 2,
+      "bookings": 3384,
+      "avg_price_multiplier": 1.069,
+      "avg_booking_value_usd": 288.2,
+      "pct_of_bookings": 18.2
+    },
+    {
+      "lead_time_bucket": "8-30 d",
+      "bucket_order": 3,
+      "bookings": 11659,
+      "avg_price_multiplier": 1.017,
+      "avg_booking_value_usd": 280.6,
+      "pct_of_bookings": 62.8
+    },
+    {
+      "lead_time_bucket": "31-60 d",
+      "bucket_order": 4,
+      "bookings": 2478,
+      "avg_price_multiplier": 1.015,
+      "avg_booking_value_usd": 272.6,
+      "pct_of_bookings": 13.3
+    },
+    {
+      "lead_time_bucket": "60+ d",
+      "bucket_order": 5,
+      "bookings": 168,
+      "avg_price_multiplier": 1.004,
+      "avg_booking_value_usd": 279.9,
+      "pct_of_bookings": 0.9
+    }
+  ],
+  "pricing_by_category": [
+    {
+      "category": "Day Trips & Excursions",
+      "bookings": 3245,
+      "base_gmv_usd": 1292379.0,
+      "pricing_uplift_usd": 38132.0,
+      "uplift_pct": 3.0,
+      "avg_price_multiplier": 1.031
+    },
+    {
+      "category": "Shows & Concerts",
+      "bookings": 2114,
+      "base_gmv_usd": 1017259.0,
+      "pricing_uplift_usd": 32129.0,
+      "uplift_pct": 3.2,
+      "avg_price_multiplier": 1.032
+    },
+    {
+      "category": "Food & Drink",
+      "bookings": 2779,
+      "base_gmv_usd": 725303.0,
+      "pricing_uplift_usd": 25310.0,
+      "uplift_pct": 3.5,
+      "avg_price_multiplier": 1.034
+    },
+    {
+      "category": "Water Activities",
+      "bookings": 2143,
+      "base_gmv_usd": 737375.0,
+      "pricing_uplift_usd": 23448.0,
+      "uplift_pct": 3.2,
+      "avg_price_multiplier": 1.034
+    },
+    {
+      "category": "Guided Tours",
+      "bookings": 3020,
+      "base_gmv_usd": 772670.0,
+      "pricing_uplift_usd": 22320.0,
+      "uplift_pct": 2.9,
+      "avg_price_multiplier": 1.032
+    },
+    {
+      "category": "Attraction Tickets",
+      "bookings": 3223,
+      "base_gmv_usd": 425101.0,
+      "pricing_uplift_usd": 13567.0,
+      "uplift_pct": 3.2,
+      "avg_price_multiplier": 1.031
+    },
+    {
+      "category": "Museums & Exhibits",
+      "bookings": 2050,
+      "base_gmv_usd": 201640.0,
+      "pricing_uplift_usd": 6415.0,
+      "uplift_pct": 3.2,
+      "avg_price_multiplier": 1.033
+    }
+  ],
+  "demand_utilisation": [
+    {
+      "demand_band": "Low (<0.9)",
+      "band_order": 1,
+      "exp_days": 6773,
+      "avg_price_multiplier": 0.896,
+      "utilisation_pct": 13.5
+    },
+    {
+      "demand_band": "Normal (0.9-1.1)",
+      "band_order": 2,
+      "exp_days": 7817,
+      "avg_price_multiplier": 0.971,
+      "utilisation_pct": 24.1
+    },
+    {
+      "demand_band": "High (1.1-1.3)",
+      "band_order": 3,
+      "exp_days": 10203,
+      "avg_price_multiplier": 1.04,
+      "utilisation_pct": 33.9
+    },
+    {
+      "demand_band": "Peak (1.3+)",
+      "band_order": 4,
+      "exp_days": 8087,
+      "avg_price_multiplier": 1.119,
+      "utilisation_pct": 45.6
+    }
+  ],
+  "suppliers_top": [
+    {
+      "gmv_rank": 1,
+      "supplier_id": 92,
+      "city": "London",
+      "supplier_tier": 3,
+      "bookings": 434,
+      "gmv_usd": 196343.0,
+      "net_revenue_usd": 48301.0,
+      "avg_take_rate_pct": 24.6,
+      "running_gmv_share_pct": 3.8,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 2,
+      "supplier_id": 103,
+      "city": "Paris",
+      "supplier_tier": 3,
+      "bookings": 503,
+      "gmv_usd": 164707.0,
+      "net_revenue_usd": 45295.0,
+      "avg_take_rate_pct": 27.5,
+      "running_gmv_share_pct": 6.9,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 3,
+      "supplier_id": 40,
+      "city": "Paris",
+      "supplier_tier": 2,
+      "bookings": 605,
+      "gmv_usd": 151809.0,
+      "net_revenue_usd": 31576.0,
+      "avg_take_rate_pct": 20.8,
+      "running_gmv_share_pct": 9.8,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 4,
+      "supplier_id": 143,
+      "city": "New York",
+      "supplier_tier": 2,
+      "bookings": 419,
+      "gmv_usd": 147112.0,
+      "net_revenue_usd": 33689.0,
+      "avg_take_rate_pct": 22.9,
+      "running_gmv_share_pct": 12.6,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 5,
+      "supplier_id": 80,
+      "city": "Paris",
+      "supplier_tier": 2,
+      "bookings": 618,
+      "gmv_usd": 126752.0,
+      "net_revenue_usd": 25097.0,
+      "avg_take_rate_pct": 19.8,
+      "running_gmv_share_pct": 15.0,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 6,
+      "supplier_id": 89,
+      "city": "Istanbul",
+      "supplier_tier": 3,
+      "bookings": 259,
+      "gmv_usd": 125355.0,
+      "net_revenue_usd": 38233.0,
+      "avg_take_rate_pct": 30.5,
+      "running_gmv_share_pct": 17.4,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 7,
+      "supplier_id": 66,
+      "city": "New York",
+      "supplier_tier": 1,
+      "bookings": 368,
+      "gmv_usd": 122637.0,
+      "net_revenue_usd": 20235.0,
+      "avg_take_rate_pct": 16.5,
+      "running_gmv_share_pct": 19.8,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 8,
+      "supplier_id": 33,
+      "city": "New York",
+      "supplier_tier": 2,
+      "bookings": 446,
+      "gmv_usd": 117890.0,
+      "net_revenue_usd": 26407.0,
+      "avg_take_rate_pct": 22.4,
+      "running_gmv_share_pct": 22.0,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 9,
+      "supplier_id": 19,
+      "city": "Orlando",
+      "supplier_tier": 1,
+      "bookings": 418,
+      "gmv_usd": 109438.0,
+      "net_revenue_usd": 20793.0,
+      "avg_take_rate_pct": 19.0,
+      "running_gmv_share_pct": 24.1,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 10,
+      "supplier_id": 127,
+      "city": "New York",
+      "supplier_tier": 1,
+      "bookings": 531,
+      "gmv_usd": 107553.0,
+      "net_revenue_usd": 17101.0,
+      "avg_take_rate_pct": 15.9,
+      "running_gmv_share_pct": 26.2,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 11,
+      "supplier_id": 116,
+      "city": "Cancun",
+      "supplier_tier": 1,
+      "bookings": 384,
+      "gmv_usd": 106519.0,
+      "net_revenue_usd": 17682.0,
+      "avg_take_rate_pct": 16.6,
+      "running_gmv_share_pct": 28.2,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 12,
+      "supplier_id": 126,
+      "city": "New York",
+      "supplier_tier": 3,
+      "bookings": 172,
+      "gmv_usd": 103034.0,
+      "net_revenue_usd": 24007.0,
+      "avg_take_rate_pct": 23.3,
+      "running_gmv_share_pct": 30.2,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 13,
+      "supplier_id": 50,
+      "city": "Cancun",
+      "supplier_tier": 2,
+      "bookings": 261,
+      "gmv_usd": 101166.0,
+      "net_revenue_usd": 24887.0,
+      "avg_take_rate_pct": 24.6,
+      "running_gmv_share_pct": 32.1,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 14,
+      "supplier_id": 59,
+      "city": "Singapore",
+      "supplier_tier": 3,
+      "bookings": 326,
+      "gmv_usd": 100077.0,
+      "net_revenue_usd": 27121.0,
+      "avg_take_rate_pct": 27.1,
+      "running_gmv_share_pct": 34.0,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 15,
+      "supplier_id": 2,
+      "city": "Istanbul",
+      "supplier_tier": 2,
+      "bookings": 274,
+      "gmv_usd": 99963.0,
+      "net_revenue_usd": 24291.0,
+      "avg_take_rate_pct": 24.3,
+      "running_gmv_share_pct": 35.9,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 16,
+      "supplier_id": 20,
+      "city": "London",
+      "supplier_tier": 3,
+      "bookings": 347,
+      "gmv_usd": 93997.0,
+      "net_revenue_usd": 24533.0,
+      "avg_take_rate_pct": 26.1,
+      "running_gmv_share_pct": 37.7,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 17,
+      "supplier_id": 148,
+      "city": "London",
+      "supplier_tier": 3,
+      "bookings": 288,
+      "gmv_usd": 93677.0,
+      "net_revenue_usd": 22389.0,
+      "avg_take_rate_pct": 23.9,
+      "running_gmv_share_pct": 39.5,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 18,
+      "supplier_id": 27,
+      "city": "Singapore",
+      "supplier_tier": 2,
+      "bookings": 349,
+      "gmv_usd": 81223.0,
+      "net_revenue_usd": 19981.0,
+      "avg_take_rate_pct": 24.6,
+      "running_gmv_share_pct": 41.1,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 19,
+      "supplier_id": 106,
+      "city": "Paris",
+      "supplier_tier": 3,
+      "bookings": 211,
+      "gmv_usd": 79888.0,
+      "net_revenue_usd": 20371.0,
+      "avg_take_rate_pct": 25.5,
+      "running_gmv_share_pct": 42.6,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 20,
+      "supplier_id": 74,
+      "city": "London",
+      "supplier_tier": 1,
+      "bookings": 247,
+      "gmv_usd": 75343.0,
+      "net_revenue_usd": 11527.0,
+      "avg_take_rate_pct": 15.3,
+      "running_gmv_share_pct": 44.0,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 21,
+      "supplier_id": 36,
+      "city": "Amsterdam",
+      "supplier_tier": 2,
+      "bookings": 100,
+      "gmv_usd": 74096.0,
+      "net_revenue_usd": 17264.0,
+      "avg_take_rate_pct": 23.3,
+      "running_gmv_share_pct": 45.4,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 22,
+      "supplier_id": 101,
+      "city": "Las Vegas",
+      "supplier_tier": 1,
+      "bookings": 210,
+      "gmv_usd": 73836.0,
+      "net_revenue_usd": 15506.0,
+      "avg_take_rate_pct": 21.0,
+      "running_gmv_share_pct": 46.8,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 23,
+      "supplier_id": 34,
+      "city": "Barcelona",
+      "supplier_tier": 2,
+      "bookings": 167,
+      "gmv_usd": 71408.0,
+      "net_revenue_usd": 16210.0,
+      "avg_take_rate_pct": 22.7,
+      "running_gmv_share_pct": 48.2,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 24,
+      "supplier_id": 75,
+      "city": "New York",
+      "supplier_tier": 1,
+      "bookings": 327,
+      "gmv_usd": 70994.0,
+      "net_revenue_usd": 11998.0,
+      "avg_take_rate_pct": 16.9,
+      "running_gmv_share_pct": 49.6,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 25,
+      "supplier_id": 150,
+      "city": "Barcelona",
+      "supplier_tier": 1,
+      "bookings": 269,
+      "gmv_usd": 67441.0,
+      "net_revenue_usd": 11195.0,
+      "avg_take_rate_pct": 16.6,
+      "running_gmv_share_pct": 50.9,
+      "tier_flag": "Top 80% of GMV"
+    }
+  ],
+  "cities": [
+    {
+      "city": "New York",
+      "region": "North America",
+      "bookings": 3269,
+      "gmv_usd": 920471.0,
+      "cancellation_rate_pct": 9.1,
+      "avg_rating": 4.44,
+      "avg_lead_days": 17.1,
+      "listed_experiences": 49,
+      "experiences_sold": 49
+    },
+    {
+      "city": "London",
+      "region": "Europe",
+      "bookings": 2698,
+      "gmv_usd": 815364.0,
+      "cancellation_rate_pct": 7.7,
+      "avg_rating": 4.39,
+      "avg_lead_days": 17.2,
+      "listed_experiences": 45,
+      "experiences_sold": 44
+    },
+    {
+      "city": "Paris",
+      "region": "Europe",
+      "bookings": 2092,
+      "gmv_usd": 563310.0,
+      "cancellation_rate_pct": 7.4,
+      "avg_rating": 4.42,
+      "avg_lead_days": 17.5,
+      "listed_experiences": 34,
+      "experiences_sold": 33
+    },
+    {
+      "city": "Rome",
+      "region": "Europe",
+      "bookings": 1772,
+      "gmv_usd": 408897.0,
+      "cancellation_rate_pct": 9.8,
+      "avg_rating": 4.42,
+      "avg_lead_days": 17.9,
+      "listed_experiences": 33,
+      "experiences_sold": 33
+    },
+    {
+      "city": "Dubai",
+      "region": "Middle East",
+      "bookings": 1248,
+      "gmv_usd": 397346.0,
+      "cancellation_rate_pct": 9.0,
+      "avg_rating": 4.47,
+      "avg_lead_days": 17.7,
+      "listed_experiences": 29,
+      "experiences_sold": 29
+    },
+    {
+      "city": "Las Vegas",
+      "region": "North America",
+      "bookings": 1224,
+      "gmv_usd": 365149.0,
+      "cancellation_rate_pct": 8.8,
+      "avg_rating": 4.41,
+      "avg_lead_days": 18.0,
+      "listed_experiences": 28,
+      "experiences_sold": 28
+    },
+    {
+      "city": "Orlando",
+      "region": "North America",
+      "bookings": 1445,
+      "gmv_usd": 353636.0,
+      "cancellation_rate_pct": 8.8,
+      "avg_rating": 4.45,
+      "avg_lead_days": 17.2,
+      "listed_experiences": 30,
+      "experiences_sold": 29
+    },
+    {
+      "city": "Barcelona",
+      "region": "Europe",
+      "bookings": 1210,
+      "gmv_usd": 343178.0,
+      "cancellation_rate_pct": 10.7,
+      "avg_rating": 4.44,
+      "avg_lead_days": 17.2,
+      "listed_experiences": 28,
+      "experiences_sold": 28
+    },
+    {
+      "city": "Tokyo",
+      "region": "APAC",
+      "bookings": 1223,
+      "gmv_usd": 312642.0,
+      "cancellation_rate_pct": 8.7,
+      "avg_rating": 4.42,
+      "avg_lead_days": 17.9,
+      "listed_experiences": 31,
+      "experiences_sold": 31
+    },
+    {
+      "city": "Amsterdam",
+      "region": "Europe",
+      "bookings": 886,
+      "gmv_usd": 286229.0,
+      "cancellation_rate_pct": 9.6,
+      "avg_rating": 4.39,
+      "avg_lead_days": 16.8,
+      "listed_experiences": 21,
+      "experiences_sold": 21
+    },
+    {
+      "city": "Cancun",
+      "region": "LATAM",
+      "bookings": 861,
+      "gmv_usd": 273281.0,
+      "cancellation_rate_pct": 9.9,
+      "avg_rating": 4.45,
+      "avg_lead_days": 17.3,
+      "listed_experiences": 20,
+      "experiences_sold": 20
+    },
+    {
+      "city": "Istanbul",
+      "region": "Europe",
+      "bookings": 587,
+      "gmv_usd": 254013.0,
+      "cancellation_rate_pct": 9.2,
+      "avg_rating": 4.5,
+      "avg_lead_days": 17.9,
+      "listed_experiences": 13,
+      "experiences_sold": 13
+    },
+    {
+      "city": "Singapore",
+      "region": "APAC",
+      "bookings": 745,
+      "gmv_usd": 198959.0,
+      "cancellation_rate_pct": 9.4,
+      "avg_rating": 4.4,
+      "avg_lead_days": 17.0,
+      "listed_experiences": 23,
+      "experiences_sold": 23
+    },
+    {
+      "city": "Sydney",
+      "region": "APAC",
+      "bookings": 669,
+      "gmv_usd": 125144.0,
+      "cancellation_rate_pct": 7.8,
+      "avg_rating": 4.44,
+      "avg_lead_days": 17.0,
+      "listed_experiences": 23,
+      "experiences_sold": 22
+    },
+    {
+      "city": "Bangkok",
+      "region": "APAC",
+      "bookings": 453,
+      "gmv_usd": 113800.0,
+      "cancellation_rate_pct": 10.2,
+      "avg_rating": 4.45,
+      "avg_lead_days": 18.4,
+      "listed_experiences": 13,
+      "experiences_sold": 13
+    }
+  ]
+};
+
+const nf = new Intl.NumberFormat('en-US');
+const usd = v => { const a=Math.abs(v);
+  if(a>=1e6) return '$'+(v/1e6).toFixed(2)+'M';
+  if(a>=1e3) return '$'+(v/1e3).toFixed(0)+'K';
+  return '$'+Math.round(v); };
+const usd0 = v => '$'+nf.format(Math.round(v));
+const cvar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let charts = [];
+
+/* ---------- KPI tiles ---------- */
+function renderKPIs(){
+  const h=DATA.headline;
+  const tiles=[
+    {label:'GMV (18 mo)', val:usd(h.gmv_usd), sub:'gross booking value'},
+    {label:'Net revenue', val:usd(h.net_revenue_usd), sub:'platform commission'},
+    {label:'Take rate', val:h.take_rate_pct.toFixed(1)+'%', sub:'net revenue / GMV'},
+    {label:'Bookings', val:nf.format(h.bookings), sub:'AOV '+usd0(h.aov_usd)},
+    {label:'Conversion', val:h.conversion_pct.toFixed(2)+'%', sub:'session to booking'},
+    {label:'Repeat rate', val:h.repeat_rate_pct.toFixed(1)+'%', sub:'customers with 2+ bookings'},
+    {label:'Blended paid ROAS', val:h.paid_blended_roas.toFixed(2)+'x',
+      sub:h.paid_blended_roas>=1?'above break-even':'below break-even',
+      cls:h.paid_blended_roas>=1?'good':'bad'},
+    {label:'Paid spend', val:usd(h.paid_spend_usd), sub:'4 paid channels'},
+  ];
+  document.getElementById('kpis').innerHTML = tiles.map(t=>`
+    <div class="kpi"><div class="label">${t.label}</div>
+      <div class="val">${t.val}</div><div class="sub ${t.cls||''}">${t.sub}</div></div>`).join('');
+}
+
+/* ---------- health index ---------- */
+function renderHealth(){
+  const h=DATA.headline, comp=DATA.health_components||[];
+  document.getElementById('hi_num').innerHTML = h.health_index+'<span>/100</span>';
+  const band = h.health_index>=70?'Healthy':h.health_index>=50?'Mixed — a few things to fix':'Needs attention';
+  document.getElementById('hi_lab').textContent = band;
+  document.getElementById('hi_comp').innerHTML = comp.map(c=>`
+    <div class="hc"><div>${c.name} <span style="color:var(--muted)">·${c.weight}%</span></div>
+      <div class="trk"><div class="fil" style="width:${c.score}%"></div></div>
+      <div class="sc">${c.score.toFixed(0)}/100</div></div>`).join('');
+}
+
+/* ---------- tables ---------- */
+function table(el, cols, rows){
+  const thead='<thead><tr>'+cols.map(c=>`<th class="${c.num?'num':''}">${c.h}</th>`).join('')+'</tr></thead>';
+  const tbody='<tbody>'+rows.map(r=>'<tr>'+cols.map(c=>{
+    const v=c.f?c.f(r[c.k],r):r[c.k];
+    return `<td class="${c.num?'num':''}">${v==null?'–':v}</td>`;}).join('')+'</tr>').join('')+'</tbody>';
+  document.getElementById(el).innerHTML=thead+tbody;
+}
+function recPill(r){const m={'Scale':'scale','Optimise':'optimise','Cut / fix':'cut','Organic / owned':'owned'};
+  return `<span class="pill ${m[r]||'owned'}">${r}</span>`;}
+
+/* ---------- funnel ---------- */
+function renderFunnel(){
+  const f=DATA.funnel, max=f[0].users;
+  document.getElementById('funnel').innerHTML=f.map(s=>{
+    const w=Math.max(6,s.users/max*100);
+    const drop=s.users_lost_vs_prev!=null?`−${nf.format(s.users_lost_vs_prev)} lost (${(100-s.step_conversion_pct).toFixed(0)}%)`:'';
+    return `<div class="fstage"><div class="lab">${s.stage}</div>
+      <div><div class="fbar-track"><div class="fbar" style="width:${w}%">${nf.format(s.users)} · ${s.pct_of_sessions}%</div></div>
+      ${drop?`<div class="fdrop">${drop}</div>`:''}</div></div>`;}).join('');
+}
+
+/* ---------- cohort heatmap ---------- */
+function renderCohort(){
+  const c=DATA.cohort, flat=c.matrix.flat().filter(v=>v!=null), max=Math.max(...flat);
+  const style=v=>{ if(v==null) return 'background:transparent';
+    const t=v/max, bg=`color-mix(in srgb, var(--accent) ${Math.round(14+t*74)}%, var(--panel))`;
+    return `background:${bg};color:${t>0.55?'#fff':'var(--ink)'}`; };
+  let html='<thead><tr><th>Cohort</th>'+c.months.map(m=>`<th class="num">M${m}</th>`).join('')+'</tr></thead><tbody>';
+  c.cohorts.forEach((name,i)=>{ html+=`<tr><td>${name}</td>`+c.matrix[i].map(v=>
+    `<td class="cell" style="${style(v)}">${v==null?'':v.toFixed(1)}</td>`).join('')+'</tr>'; });
+  document.getElementById('t_cohort').innerHTML=html+'</tbody>';
+}
+
+/* ---------- experiment ---------- */
+function renderExperiment(){
+  const e=DATA.experiment;
+  document.getElementById('exp_lift').textContent='+'+e.rel_lift_pct.toFixed(1)+'%';
+  const p=e.p_value===0?'<1e-10':e.p_value.toExponential(1);
+  document.getElementById('exp_meta').innerHTML=
+    `<span>control <b>${(e.control_rate*100).toFixed(2)}%</b></span>
+     <span>treatment <b>${(e.treatment_rate*100).toFixed(2)}%</b></span>
+     <span>abs <b>+${e.abs_lift_pp.toFixed(2)}pp</b></span>
+     <span>p <b>${p}</b></span>
+     <span>95% CI <b>[${e.ci_low_pp.toFixed(2)}, ${e.ci_high_pp.toFixed(2)}]pp</b></span>`;
+  document.getElementById('exp_verdict').textContent=
+    e.significant?'Statistically significant — ship it':'Not significant — keep running';
+  const arms=[['Control',e.control_rate,'c',e.control],['Treatment',e.treatment_rate,'t',e.treatment]];
+  const mx=Math.max(e.control_rate,e.treatment_rate);
+  document.getElementById('exp_bars').innerHTML=arms.map(([n,r,cls,o])=>`
+    <div class="arm"><div>${n}<div class="note" style="margin:0">${nf.format(o.sessions)} sess</div></div>
+      <div class="track"><div class="fill ${cls}" style="width:${r/mx*100}%"></div></div>
+      <div class="pct">${(r*100).toFixed(2)}%</div></div>`).join('');
+}
+
+/* ---------- scenario simulator ---------- */
+function renderSimulator(){
+  const ch=DATA.channels.filter(c=>c.spend_usd>0);
+  const disp=ch.find(c=>c.channel==='Display')||{spend_usd:0,roas_on_net_rev:0};
+  const aff=ch.find(c=>c.channel==='Affiliates')||{roas_on_net_rev:0};
+  const totSpend=ch.reduce((s,c)=>s+c.spend_usd,0);
+  const totNet=ch.reduce((s,c)=>s+c.net_revenue_usd,0);
+  const maxMove=Math.round(disp.spend_usd);
+  const bg=document.getElementById('bg_slider');
+
+  function budget(){
+    const move=Math.round(maxMove*(bg.value/100));
+    const dNet=move*(aff.roas_on_net_rev-disp.roas_on_net_rev);
+    const newNet=totNet - move*disp.roas_on_net_rev + move*aff.roas_on_net_rev;
+    const newBlended=totSpend>0?newNet/totSpend:0;
+    document.getElementById('bg_amt').textContent=usd0(move);
+    document.getElementById('bg_out').innerHTML=
+      `<div class="sim-metric"><div class="v ${dNet>=0?'good':'bad'}">${dNet>=0?'+':''}${usd0(dNet)}</div><div class="k">Δ net revenue</div></div>
+       <div class="sim-metric"><div class="v">${DATA.headline.paid_blended_roas.toFixed(2)}x → ${newBlended.toFixed(2)}x</div><div class="k">blended paid ROAS</div></div>`;
+  }
+  bg.oninput=budget; budget();
+
+  const dc=DATA.device_checkout||[];
+  const mob=dc.find(d=>d.device==='Mobile'), desk=dc.find(d=>d.device==='Desktop');
+  const mb=document.getElementById('mb_slider');
+  function mobile(){
+    const pct=mb.value/100;
+    let extraB=0;
+    if(mob&&desk){ const gap=(desk.checkout_to_book_pct-mob.checkout_to_book_pct)/100;
+      extraB=Math.round(mob.checkout_started*gap*pct); }
+    const extraG=extraB*DATA.headline.aov_usd;
+    document.getElementById('mb_pct').textContent=mb.value+'%';
+    document.getElementById('mb_out').innerHTML=
+      `<div class="sim-metric"><div class="v good">+${nf.format(extraB)}</div><div class="k">extra bookings (18 mo)</div></div>
+       <div class="sim-metric"><div class="v good">+${usd(extraG)}</div><div class="k">extra GMV</div></div>
+       <div class="sim-metric"><div class="v">+${nf.format(Math.round(extraB/18))}</div><div class="k">per month</div></div>`;
+  }
+  mb.oninput=mobile; mobile();
+}
+
+/* ---------- charts ---------- */
+function chartFallback(e){
+  document.querySelectorAll('.chart-box').forEach(b=>{
+    b.innerHTML='<div class="chart-missing">The charts use a library loaded over the internet (Chart.js). They’ll appear online; the tables and numbers all work offline.</div>';
+  });
+  if(e) console.warn('charts unavailable:', e);
+}
+function buildCharts(){
+  if(typeof Chart==='undefined'){ chartFallback(); return; }
+  charts.forEach(c=>c.destroy()); charts=[];
+  const ink=cvar('--ink'), muted=cvar('--muted'), grid=cvar('--grid');
+  Chart.defaults.color=muted; Chart.defaults.font.family='IBM Plex Sans'; Chart.defaults.font.size=11;
+  const accent=cvar('--accent'), teal=cvar('--teal'), good=cvar('--good'), warn=cvar('--warn'), bad=cvar('--bad');
+  const gl={grid:{color:grid},ticks:{color:muted}}, noGrid={grid:{display:false},ticks:{color:muted}};
+
+  const m=DATA.monthly;
+  charts.push(new Chart(c_monthly,{data:{labels:m.map(r=>r.year_month),datasets:[
+    {type:'bar',label:'GMV',data:m.map(r=>r.gmv_usd),backgroundColor:teal,borderRadius:4,yAxisID:'y',order:2},
+    {type:'line',label:'MoM growth %',data:m.map(r=>r.gmv_mom_growth_pct),borderColor:accent,backgroundColor:accent,tension:.3,pointRadius:2.5,borderWidth:2,yAxisID:'y1',order:1}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{boxWidth:12}}},
+      scales:{y:{...gl,ticks:{...gl.ticks,callback:v=>usd(v)}},y1:{...noGrid,position:'right',ticks:{...noGrid.ticks,callback:v=>v+'%'}},
+        x:{...noGrid,ticks:{...noGrid.ticks,maxRotation:45,minRotation:45,font:{size:9}}}}}}));
+
+  const paid=DATA.channels.filter(c=>c.spend_usd>0).sort((a,b)=>a.roas_on_net_rev-b.roas_on_net_rev);
+  charts.push(new Chart(c_roas,{type:'bar',data:{labels:paid.map(c=>c.channel),datasets:[{label:'ROAS',
+    data:paid.map(c=>c.roas_on_net_rev),backgroundColor:paid.map(c=>c.roas_on_net_rev>=1.5?good:(c.roas_on_net_rev>=1?warn:bad)),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>`${c.raw}x · CAC $${paid[c.dataIndex].cac_usd}`}}},
+      scales:{x:{...gl,ticks:{...gl.ticks,callback:v=>v+'x'},suggestedMax:2.2},y:{...noGrid}}}}));
+
+  const l=[...DATA.ltv].sort((a,b)=>a.avg_90d_net_rev_usd-b.avg_90d_net_rev_usd);
+  charts.push(new Chart(c_ltv,{type:'bar',data:{labels:l.map(r=>r.acquisition_channel),datasets:[{label:'Avg 90-day net rev',
+    data:l.map(r=>r.avg_90d_net_rev_usd),backgroundColor:accent,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>`$${c.raw} · ${nf.format(l[c.dataIndex].customers_acquired)} customers`}}},
+      scales:{x:{...gl,ticks:{...gl.ticks,callback:v=>'$'+v}},y:{...noGrid}}}}));
+
+  const s=DATA.suppliers_top;
+  charts.push(new Chart(c_pareto,{data:{labels:s.map(r=>'#'+r.gmv_rank),datasets:[
+    {type:'bar',label:'GMV',data:s.map(r=>r.gmv_usd),backgroundColor:teal,borderRadius:3,yAxisID:'y',order:2},
+    {type:'line',label:'Cumulative %',data:s.map(r=>r.running_gmv_share_pct),borderColor:accent,backgroundColor:accent,pointRadius:1.8,borderWidth:2,tension:.2,yAxisID:'y1',order:1}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},
+      scales:{y:{...gl,ticks:{...gl.ticks,callback:v=>usd(v)}},y1:{...noGrid,position:'right',min:0,suggestedMax:60,ticks:{...noGrid.ticks,callback:v=>v+'%'}},
+        x:{...noGrid,ticks:{...noGrid.ticks,font:{size:8}}}}}}));
+
+  const pc=[...DATA.pricing_by_category].sort((a,b)=>a.pricing_uplift_usd-b.pricing_uplift_usd);
+  charts.push(new Chart(c_pricing,{type:'bar',data:{labels:pc.map(r=>r.category),datasets:[{label:'Incremental GMV',
+    data:pc.map(r=>r.pricing_uplift_usd),backgroundColor:accent,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>`${usd0(c.raw)} · +${pc[c.dataIndex].uplift_pct}%`}}},
+      scales:{x:{...gl,ticks:{...gl.ticks,callback:v=>usd(v)}},y:{...noGrid,ticks:{...noGrid.ticks,font:{size:10}}}}}}));
+
+  const lt=DATA.leadtime;
+  charts.push(new Chart(c_leadtime,{data:{labels:lt.map(r=>r.lead_time_bucket),datasets:[
+    {type:'bar',label:'Bookings',data:lt.map(r=>r.bookings),backgroundColor:'rgba(125,133,146,.45)',borderRadius:3,yAxisID:'y',order:2},
+    {type:'line',label:'Avg price multiplier',data:lt.map(r=>r.avg_price_multiplier),borderColor:accent,backgroundColor:accent,pointRadius:3,borderWidth:2,tension:.2,yAxisID:'y1',order:1}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},
+      scales:{y:{...gl,ticks:{...gl.ticks}},y1:{...noGrid,position:'right',ticks:{...noGrid.ticks,callback:v=>v.toFixed(2)+'x'}},
+        x:{...noGrid,ticks:{...noGrid.ticks,font:{size:9}}}}}}));
+}
+
+/* ---------- static tables ---------- */
+function renderTables(){
+  table('t_region',[{h:'Region',k:'region'},{h:'Tier',k:'city_tier',num:true,f:v=>'T'+v},
+    {h:'Bookings',k:'bookings',num:true,f:v=>nf.format(v)},{h:'GMV',k:'gmv_usd',num:true,f:usd0},
+    {h:'% GMV',k:'pct_of_total_gmv',num:true,f:v=>v+'%'},{h:'Cumul.',k:'running_pct_of_gmv',num:true,f:v=>v+'%'}], DATA.region);
+  table('t_channels',[{h:'Channel',k:'channel'},{h:'Sessions',k:'sessions',num:true,f:v=>nf.format(v)},
+    {h:'Conv%',k:'conversion_pct',num:true,f:v=>v+'%'},{h:'Spend',k:'spend_usd',num:true,f:v=>v>0?usd0(v):'–'},
+    {h:'Net rev',k:'net_revenue_usd',num:true,f:usd0},{h:'CAC',k:'cac_usd',num:true,f:v=>v==null?'–':'$'+v},
+    {h:'ROAS',k:'roas_on_net_rev',num:true,f:v=>v==null?'–':v.toFixed(2)+'x'},{h:'Call',k:'recommendation',f:recPill}], DATA.channels);
+  table('t_device',[{h:'Device',k:'device'},{h:'Sessions',k:'sessions',num:true,f:v=>nf.format(v)},
+    {h:'Cart→Checkout',k:'cart_to_checkout_pct',num:true,f:v=>v+'%'},{h:'Checkout→Book',k:'checkout_to_book_pct',num:true,f:v=>v+'%'},
+    {h:'Overall',k:'overall_conversion_pct',num:true,f:v=>v+'%'}], DATA.device);
+  table('t_cities',[{h:'City',k:'city'},{h:'Bookings',k:'bookings',num:true,f:v=>nf.format(v)},
+    {h:'GMV',k:'gmv_usd',num:true,f:usd0},{h:'Cancel%',k:'cancellation_rate_pct',num:true,f:v=>v+'%'},
+    {h:'Rating',k:'avg_rating',num:true,f:v=>v==null?'–':v.toFixed(2)},{h:'Lead d',k:'avg_lead_days',num:true,f:v=>v.toFixed(1)}], DATA.cities);
+}
+
+/* ---------- insight callouts ---------- */
+function renderInsights(){
+  const h=DATA.headline, m=DATA.monthly;
+  const growth=(m[m.length-1].gmv_usd/m[0].gmv_usd).toFixed(1);
+  document.getElementById('ins_overview').innerHTML=
+    `<b>Takeaway:</b> GMV grew ~${growth}x over 18 months to ${usd(m[m.length-1].gmv_usd)}/mo, with a clear summer peak. Take rate held near ${h.take_rate_pct}%.`;
+  const disp=DATA.channels.find(c=>c.channel==='Display'), aff=DATA.channels.find(c=>c.channel==='Affiliates');
+  document.getElementById('ins_growth').innerHTML=
+    `<b>Action:</b> cut or fix Display (${disp.roas_on_net_rev}x ROAS, losing ${usd0(disp.spend_usd-disp.net_revenue_usd)}); move budget to Affiliates (${aff.roas_on_net_rev}x, $${aff.cac_usd} CAC) and Paid Social.`;
+  const dev=DATA.device, mob=dev.find(d=>d.device==='Mobile'), desk=dev.find(d=>d.device==='Desktop');
+  const gap=(100*(1-mob.checkout_to_book_pct/desk.checkout_to_book_pct)).toFixed(0);
+  const share=(100*mob.sessions/dev.reduce((s,d)=>s+d.sessions,0)).toFixed(0);
+  document.getElementById('ins_device').innerHTML=
+    `<b>Biggest product lever:</b> mobile checkout converts ${gap}% worse than desktop (${mob.checkout_to_book_pct}% vs ${desk.checkout_to_book_pct}%) and it's ${share}% of traffic. See the Scenario Simulator for the upside.`;
+  const sup=DATA.suppliers_top, top=sup[sup.length-1].running_gmv_share_pct;
+  document.getElementById('ins_supply').innerHTML=
+    `<b>Concentration risk:</b> the top 25 suppliers are already ${top}% of GMV — worth a retention/SLA focus on the head.`;
+}
+
+/* ---------- tabs & theme ---------- */
+function setTab(name){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected', b.dataset.tab===name));
+  document.querySelectorAll('[data-panel]').forEach(p=>p.hidden = p.dataset.panel!==name);
+  try{ history.replaceState(null,'','#'+name); }catch(e){}
+}
+function currentDark(){const t=document.documentElement.getAttribute('data-theme');
+  return t?t==='dark':window.matchMedia('(prefers-color-scheme:dark)').matches;}
+function toggleTheme(){document.documentElement.setAttribute('data-theme',currentDark()?'light':'dark');
+  try{buildCharts();}catch(e){chartFallback(e);}}
+
+/* ---------- boot: wire navigation FIRST, charts last & isolated ---------- */
+function boot(){
+  const meta=DATA.meta;
+  document.getElementById('asof').innerHTML=`as of ${meta.as_of_date}<br>${meta.window}`;
+  document.getElementById('foot').innerHTML=
+    `Simulated dataset · ${nf.format(DATA.headline.bookings)} realised bookings · built ${meta.generated_at.replace('T',' ').replace('+00:00','Z')} · figures are illustrative.`;
+
+  // navigation + theme handlers go on before anything that could throw
+  document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('button'); if(b) setTab(b.dataset.tab);});
+  document.getElementById('themeBtn').addEventListener('click',toggleTheme);
+  const hash=(location.hash||'').replace('#','');
+  if(['overview','growth','product','supply','simulator'].includes(hash)) setTab(hash);
+  window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{
+    if(!document.documentElement.getAttribute('data-theme')){try{buildCharts();}catch(e){chartFallback(e);}}});
+
+  renderKPIs(); renderHealth(); renderFunnel(); renderCohort();
+  renderExperiment(); renderTables(); renderInsights(); renderSimulator();
+  try{ buildCharts(); }catch(e){ chartFallback(e); }
+}
+boot();
+</script>

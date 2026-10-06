@@ -1,0 +1,1252 @@
+{
+  "meta": {
+    "generated_at": "2026-10-05T18:08:18+00:00",
+    "as_of_date": "2026-10-05",
+    "window": "2025-04 to 2026-09 (18 months)",
+    "currency": "USD"
+  },
+  "headline": {
+    "gmv_usd": 5234683.74,
+    "net_revenue_usd": 1189976.34,
+    "bookings": 18574,
+    "aov_usd": 281.8,
+    "take_rate_pct": 22.7,
+    "conversion_pct": 5.52,
+    "repeat_rate_pct": 22.5,
+    "paid_blended_roas": 1.18,
+    "paid_spend_usd": 283509.0,
+    "latest_mom_growth_pct": -0.4,
+    "health_index": 67.2,
+    "recent_quarter_growth_pct": 52.1
+  },
+  "health_components": [
+    {
+      "name": "Growth",
+      "score": 100.0,
+      "weight": 30
+    },
+    {
+      "name": "Conversion",
+      "score": 63.0,
+      "weight": 20
+    },
+    {
+      "name": "Retention",
+      "score": 50.0,
+      "weight": 15
+    },
+    {
+      "name": "Marketing ROAS",
+      "score": 31.7,
+      "weight": 20
+    },
+    {
+      "name": "Supply spread",
+      "score": 72.1,
+      "weight": 15
+    }
+  ],
+  "monthly": [
+    {
+      "year_month": "2025-04",
+      "bookings": 224,
+      "gmv_usd": 54790.0,
+      "net_revenue_usd": 12217.0,
+      "aov_usd": 244.6,
+      "take_rate_pct": 22.3,
+      "gmv_mom_growth_pct": null
+    },
+    {
+      "year_month": "2025-05",
+      "bookings": 291,
+      "gmv_usd": 81129.0,
+      "net_revenue_usd": 18608.0,
+      "aov_usd": 278.8,
+      "take_rate_pct": 22.9,
+      "gmv_mom_growth_pct": 48.1
+    },
+    {
+      "year_month": "2025-06",
+      "bookings": 384,
+      "gmv_usd": 109270.0,
+      "net_revenue_usd": 25004.0,
+      "aov_usd": 284.6,
+      "take_rate_pct": 22.9,
+      "gmv_mom_growth_pct": 34.7
+    },
+    {
+      "year_month": "2025-07",
+      "bookings": 451,
+      "gmv_usd": 131990.0,
+      "net_revenue_usd": 30246.0,
+      "aov_usd": 292.7,
+      "take_rate_pct": 22.9,
+      "gmv_mom_growth_pct": 20.8
+    },
+    {
+      "year_month": "2025-08",
+      "bookings": 510,
+      "gmv_usd": 152593.0,
+      "net_revenue_usd": 34994.0,
+      "aov_usd": 299.2,
+      "take_rate_pct": 22.9,
+      "gmv_mom_growth_pct": 15.6
+    },
+    {
+      "year_month": "2025-09",
+      "bookings": 509,
+      "gmv_usd": 151890.0,
+      "net_revenue_usd": 34122.0,
+      "aov_usd": 298.4,
+      "take_rate_pct": 22.5,
+      "gmv_mom_growth_pct": -0.5
+    },
+    {
+      "year_month": "2025-10",
+      "bookings": 586,
+      "gmv_usd": 165659.0,
+      "net_revenue_usd": 37541.0,
+      "aov_usd": 282.7,
+      "take_rate_pct": 22.7,
+      "gmv_mom_growth_pct": 9.1
+    },
+    {
+      "year_month": "2025-11",
+      "bookings": 648,
+      "gmv_usd": 179569.0,
+      "net_revenue_usd": 40467.0,
+      "aov_usd": 277.1,
+      "take_rate_pct": 22.5,
+      "gmv_mom_growth_pct": 8.4
+    },
+    {
+      "year_month": "2025-12",
+      "bookings": 776,
+      "gmv_usd": 215584.0,
+      "net_revenue_usd": 49009.0,
+      "aov_usd": 277.8,
+      "take_rate_pct": 22.7,
+      "gmv_mom_growth_pct": 20.1
+    },
+    {
+      "year_month": "2026-01",
+      "bookings": 793,
+      "gmv_usd": 225073.0,
+      "net_revenue_usd": 51897.0,
+      "aov_usd": 283.8,
+      "take_rate_pct": 23.1,
+      "gmv_mom_growth_pct": 4.4
+    },
+    {
+      "year_month": "2026-02",
+      "bookings": 784,
+      "gmv_usd": 213235.0,
+      "net_revenue_usd": 48004.0,
+      "aov_usd": 272.0,
+      "take_rate_pct": 22.5,
+      "gmv_mom_growth_pct": -5.3
+    },
+    {
+      "year_month": "2026-03",
+      "bookings": 1128,
+      "gmv_usd": 319370.0,
+      "net_revenue_usd": 72671.0,
+      "aov_usd": 283.1,
+      "take_rate_pct": 22.8,
+      "gmv_mom_growth_pct": 49.8
+    },
+    {
+      "year_month": "2026-04",
+      "bookings": 1234,
+      "gmv_usd": 354045.0,
+      "net_revenue_usd": 79987.0,
+      "aov_usd": 286.9,
+      "take_rate_pct": 22.6,
+      "gmv_mom_growth_pct": 10.9
+    },
+    {
+      "year_month": "2026-05",
+      "bookings": 1522,
+      "gmv_usd": 425373.0,
+      "net_revenue_usd": 97202.0,
+      "aov_usd": 279.5,
+      "take_rate_pct": 22.9,
+      "gmv_mom_growth_pct": 20.1
+    },
+    {
+      "year_month": "2026-06",
+      "bookings": 1762,
+      "gmv_usd": 503485.0,
+      "net_revenue_usd": 114333.0,
+      "aov_usd": 285.7,
+      "take_rate_pct": 22.7,
+      "gmv_mom_growth_pct": 18.4
+    },
+    {
+      "year_month": "2026-07",
+      "bookings": 2116,
+      "gmv_usd": 590728.0,
+      "net_revenue_usd": 134788.0,
+      "aov_usd": 279.2,
+      "take_rate_pct": 22.8,
+      "gmv_mom_growth_pct": 17.3
+    },
+    {
+      "year_month": "2026-08",
+      "bookings": 2378,
+      "gmv_usd": 681671.0,
+      "net_revenue_usd": 154592.0,
+      "aov_usd": 286.7,
+      "take_rate_pct": 22.7,
+      "gmv_mom_growth_pct": 15.4
+    },
+    {
+      "year_month": "2026-09",
+      "bookings": 2478,
+      "gmv_usd": 679231.0,
+      "net_revenue_usd": 154294.0,
+      "aov_usd": 274.1,
+      "take_rate_pct": 22.7,
+      "gmv_mom_growth_pct": -0.4
+    }
+  ],
+  "region": [
+    {
+      "region": "Europe",
+      "city_tier": 1,
+      "bookings": 6025,
+      "gmv_usd": 1641973.0,
+      "pct_of_total_gmv": 31.4,
+      "running_pct_of_gmv": 31.4
+    },
+    {
+      "region": "North America",
+      "city_tier": 1,
+      "bookings": 4088,
+      "gmv_usd": 1175501.0,
+      "pct_of_total_gmv": 22.5,
+      "running_pct_of_gmv": 53.8
+    },
+    {
+      "region": "Europe",
+      "city_tier": 2,
+      "bookings": 2415,
+      "gmv_usd": 796140.0,
+      "pct_of_total_gmv": 15.2,
+      "running_pct_of_gmv": 69.0
+    },
+    {
+      "region": "APAC",
+      "city_tier": 2,
+      "bookings": 1699,
+      "gmv_usd": 400761.0,
+      "pct_of_total_gmv": 7.7,
+      "running_pct_of_gmv": 76.7
+    },
+    {
+      "region": "Middle East",
+      "city_tier": 1,
+      "bookings": 1136,
+      "gmv_usd": 362981.0,
+      "pct_of_total_gmv": 6.9,
+      "running_pct_of_gmv": 83.6
+    },
+    {
+      "region": "North America",
+      "city_tier": 2,
+      "bookings": 1318,
+      "gmv_usd": 324605.0,
+      "pct_of_total_gmv": 6.2,
+      "running_pct_of_gmv": 89.8
+    },
+    {
+      "region": "APAC",
+      "city_tier": 1,
+      "bookings": 1117,
+      "gmv_usd": 288789.0,
+      "pct_of_total_gmv": 5.5,
+      "running_pct_of_gmv": 95.3
+    },
+    {
+      "region": "LATAM",
+      "city_tier": 2,
+      "bookings": 776,
+      "gmv_usd": 243934.0,
+      "pct_of_total_gmv": 4.7,
+      "running_pct_of_gmv": 100.0
+    }
+  ],
+  "channels": [
+    {
+      "channel": "Organic Search",
+      "sessions": 103180,
+      "bookings": 5775,
+      "conversion_pct": 5.6,
+      "spend_usd": 0.0,
+      "gmv_usd": 1504436.0,
+      "net_revenue_usd": 342496.0,
+      "cac_usd": null,
+      "roas_on_net_rev": null,
+      "roas_on_gmv": null,
+      "recommendation": "Organic / owned"
+    },
+    {
+      "channel": "Direct",
+      "sessions": 73313,
+      "bookings": 5101,
+      "conversion_pct": 6.96,
+      "spend_usd": 0.0,
+      "gmv_usd": 1316335.0,
+      "net_revenue_usd": 300010.0,
+      "cac_usd": null,
+      "roas_on_net_rev": null,
+      "roas_on_gmv": null,
+      "recommendation": "Organic / owned"
+    },
+    {
+      "channel": "Email",
+      "sessions": 47183,
+      "bookings": 3687,
+      "conversion_pct": 7.81,
+      "spend_usd": 0.0,
+      "gmv_usd": 932160.0,
+      "net_revenue_usd": 211742.0,
+      "cac_usd": null,
+      "roas_on_net_rev": null,
+      "roas_on_gmv": null,
+      "recommendation": "Organic / owned"
+    },
+    {
+      "channel": "Paid Search",
+      "sessions": 63382,
+      "bookings": 3084,
+      "conversion_pct": 4.87,
+      "spend_usd": 165781.0,
+      "gmv_usd": 788779.0,
+      "net_revenue_usd": 178250.0,
+      "cac_usd": 53.8,
+      "roas_on_net_rev": 1.08,
+      "roas_on_gmv": 4.8,
+      "recommendation": "Optimise"
+    },
+    {
+      "channel": "Paid Social",
+      "sessions": 40932,
+      "bookings": 1333,
+      "conversion_pct": 3.26,
+      "spend_usd": 45012.0,
+      "gmv_usd": 337611.0,
+      "net_revenue_usd": 76692.0,
+      "cac_usd": 33.8,
+      "roas_on_net_rev": 1.7,
+      "roas_on_gmv": 7.5,
+      "recommendation": "Scale"
+    },
+    {
+      "channel": "Affiliates",
+      "sessions": 22596,
+      "bookings": 988,
+      "conversion_pct": 4.37,
+      "spend_usd": 31723.0,
+      "gmv_usd": 251224.0,
+      "net_revenue_usd": 57168.0,
+      "cac_usd": 32.1,
+      "roas_on_net_rev": 1.8,
+      "roas_on_gmv": 7.9,
+      "recommendation": "Scale"
+    },
+    {
+      "channel": "Display",
+      "sessions": 18625,
+      "bookings": 414,
+      "conversion_pct": 2.22,
+      "spend_usd": 40993.0,
+      "gmv_usd": 104139.0,
+      "net_revenue_usd": 23619.0,
+      "cac_usd": 99.0,
+      "roas_on_net_rev": 0.58,
+      "roas_on_gmv": 2.5,
+      "recommendation": "Cut / fix"
+    }
+  ],
+  "ltv": [
+    {
+      "acquisition_channel": "Direct",
+      "customers_acquired": 1436,
+      "avg_90d_net_rev_usd": 81.1,
+      "total_90d_net_rev_usd": 116390.0
+    },
+    {
+      "acquisition_channel": "Paid Social",
+      "customers_acquired": 1601,
+      "avg_90d_net_rev_usd": 78.8,
+      "total_90d_net_rev_usd": 126154.0
+    },
+    {
+      "acquisition_channel": "Display",
+      "customers_acquired": 764,
+      "avg_90d_net_rev_usd": 78.1,
+      "total_90d_net_rev_usd": 59632.0
+    },
+    {
+      "acquisition_channel": "Organic Search",
+      "customers_acquired": 2682,
+      "avg_90d_net_rev_usd": 77.8,
+      "total_90d_net_rev_usd": 208761.0
+    },
+    {
+      "acquisition_channel": "Paid Search",
+      "customers_acquired": 2300,
+      "avg_90d_net_rev_usd": 76.9,
+      "total_90d_net_rev_usd": 176974.0
+    },
+    {
+      "acquisition_channel": "Affiliates",
+      "customers_acquired": 773,
+      "avg_90d_net_rev_usd": 76.5,
+      "total_90d_net_rev_usd": 59121.0
+    },
+    {
+      "acquisition_channel": "Email",
+      "customers_acquired": 671,
+      "avg_90d_net_rev_usd": 76.4,
+      "total_90d_net_rev_usd": 51276.0
+    }
+  ],
+  "funnel": [
+    {
+      "stage": "Session",
+      "users": 369211,
+      "pct_of_sessions": 100.0,
+      "step_conversion_pct": null,
+      "users_lost_vs_prev": null
+    },
+    {
+      "stage": "Viewed experience",
+      "users": 299362,
+      "pct_of_sessions": 81.1,
+      "step_conversion_pct": 81.1,
+      "users_lost_vs_prev": 69849.0
+    },
+    {
+      "stage": "Added to cart",
+      "users": 108090,
+      "pct_of_sessions": 29.3,
+      "step_conversion_pct": 36.1,
+      "users_lost_vs_prev": 191272.0
+    },
+    {
+      "stage": "Checkout started",
+      "users": 60615,
+      "pct_of_sessions": 16.4,
+      "step_conversion_pct": 56.1,
+      "users_lost_vs_prev": 47475.0
+    },
+    {
+      "stage": "Booked",
+      "users": 20382,
+      "pct_of_sessions": 5.5,
+      "step_conversion_pct": 33.6,
+      "users_lost_vs_prev": 40233.0
+    }
+  ],
+  "device": [
+    {
+      "device": "Mobile",
+      "sessions": 228389,
+      "view_to_cart_equiv_pct": 29.2,
+      "cart_to_checkout_pct": 55.9,
+      "checkout_to_book_pct": 30.1,
+      "overall_conversion_pct": 4.92
+    },
+    {
+      "device": "Desktop",
+      "sessions": 122447,
+      "view_to_cart_equiv_pct": 29.4,
+      "cart_to_checkout_pct": 56.2,
+      "checkout_to_book_pct": 39.7,
+      "overall_conversion_pct": 6.57
+    },
+    {
+      "device": "Tablet",
+      "sessions": 18375,
+      "view_to_cart_equiv_pct": 29.2,
+      "cart_to_checkout_pct": 56.6,
+      "checkout_to_book_pct": 36.6,
+      "overall_conversion_pct": 6.04
+    }
+  ],
+  "device_checkout": [
+    {
+      "device": "Mobile",
+      "checkout_started": 37334,
+      "booked": 11234,
+      "checkout_to_book_pct": 30.09
+    },
+    {
+      "device": "Desktop",
+      "checkout_started": 20247,
+      "booked": 8039,
+      "checkout_to_book_pct": 39.7
+    },
+    {
+      "device": "Tablet",
+      "checkout_started": 3034,
+      "booked": 1109,
+      "checkout_to_book_pct": 36.55
+    }
+  ],
+  "cohort": {
+    "cohorts": [
+      "2025-04",
+      "2025-05",
+      "2025-06",
+      "2025-07",
+      "2025-08",
+      "2025-09",
+      "2025-10",
+      "2025-11",
+      "2025-12",
+      "2026-01",
+      "2026-02",
+      "2026-03"
+    ],
+    "months": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "matrix": [
+      [
+        0.7,
+        1.2,
+        2.8,
+        1.9,
+        2.5,
+        2.2,
+        1.9
+      ],
+      [
+        1.0,
+        2.5,
+        2.1,
+        2.3,
+        1.9,
+        1.5,
+        2.4
+      ],
+      [
+        1.1,
+        3.3,
+        2.8,
+        2.5,
+        2.6,
+        1.7,
+        2.3
+      ],
+      [
+        0.8,
+        2.8,
+        1.9,
+        2.6,
+        2.2,
+        2.4,
+        2.1
+      ],
+      [
+        1.1,
+        2.5,
+        1.9,
+        2.5,
+        2.5,
+        1.6,
+        2.0
+      ],
+      [
+        0.9,
+        2.7,
+        2.9,
+        2.6,
+        2.6,
+        1.9,
+        2.9
+      ],
+      [
+        1.1,
+        2.6,
+        3.2,
+        2.5,
+        2.3,
+        2.7,
+        2.8
+      ],
+      [
+        1.3,
+        3.5,
+        2.9,
+        2.2,
+        3.3,
+        3.4,
+        2.9
+      ],
+      [
+        1.7,
+        3.1,
+        2.4,
+        3.5,
+        3.1,
+        3.3,
+        2.5
+      ],
+      [
+        1.4,
+        3.6,
+        4.0,
+        4.1,
+        4.3,
+        3.5,
+        3.3
+      ],
+      [
+        1.5,
+        5.2,
+        4.6,
+        5.1,
+        4.7,
+        3.9,
+        2.8
+      ],
+      [
+        2.6,
+        4.8,
+        5.8,
+        5.6,
+        4.1,
+        3.4,
+        1.9
+      ]
+    ]
+  },
+  "experiment": {
+    "control": {
+      "sessions": 73264,
+      "bookings": 4441
+    },
+    "treatment": {
+      "sessions": 73214,
+      "bookings": 5174
+    },
+    "control_rate": 0.0606,
+    "treatment_rate": 0.0707,
+    "abs_lift_pp": 1.0053,
+    "rel_lift_pct": 16.5849,
+    "z": 7.7681,
+    "p_value": 0.0,
+    "ci_low_pp": 0.7517,
+    "ci_high_pp": 1.2589,
+    "significant": true
+  },
+  "leadtime": [
+    {
+      "lead_time_bucket": "0-2 d (last minute)",
+      "bucket_order": 1,
+      "bookings": 885,
+      "avg_price_multiplier": 1.141,
+      "avg_booking_value_usd": 300.3,
+      "pct_of_bookings": 4.8
+    },
+    {
+      "lead_time_bucket": "3-7 d",
+      "bucket_order": 2,
+      "bookings": 3384,
+      "avg_price_multiplier": 1.069,
+      "avg_booking_value_usd": 288.2,
+      "pct_of_bookings": 18.2
+    },
+    {
+      "lead_time_bucket": "8-30 d",
+      "bucket_order": 3,
+      "bookings": 11659,
+      "avg_price_multiplier": 1.017,
+      "avg_booking_value_usd": 280.6,
+      "pct_of_bookings": 62.8
+    },
+    {
+      "lead_time_bucket": "31-60 d",
+      "bucket_order": 4,
+      "bookings": 2478,
+      "avg_price_multiplier": 1.015,
+      "avg_booking_value_usd": 272.6,
+      "pct_of_bookings": 13.3
+    },
+    {
+      "lead_time_bucket": "60+ d",
+      "bucket_order": 5,
+      "bookings": 168,
+      "avg_price_multiplier": 1.004,
+      "avg_booking_value_usd": 279.9,
+      "pct_of_bookings": 0.9
+    }
+  ],
+  "pricing_by_category": [
+    {
+      "category": "Day Trips & Excursions",
+      "bookings": 3245,
+      "base_gmv_usd": 1292379.0,
+      "pricing_uplift_usd": 38132.0,
+      "uplift_pct": 3.0,
+      "avg_price_multiplier": 1.031
+    },
+    {
+      "category": "Shows & Concerts",
+      "bookings": 2114,
+      "base_gmv_usd": 1017259.0,
+      "pricing_uplift_usd": 32129.0,
+      "uplift_pct": 3.2,
+      "avg_price_multiplier": 1.032
+    },
+    {
+      "category": "Food & Drink",
+      "bookings": 2779,
+      "base_gmv_usd": 725303.0,
+      "pricing_uplift_usd": 25310.0,
+      "uplift_pct": 3.5,
+      "avg_price_multiplier": 1.034
+    },
+    {
+      "category": "Water Activities",
+      "bookings": 2143,
+      "base_gmv_usd": 737375.0,
+      "pricing_uplift_usd": 23448.0,
+      "uplift_pct": 3.2,
+      "avg_price_multiplier": 1.034
+    },
+    {
+      "category": "Guided Tours",
+      "bookings": 3020,
+      "base_gmv_usd": 772670.0,
+      "pricing_uplift_usd": 22320.0,
+      "uplift_pct": 2.9,
+      "avg_price_multiplier": 1.032
+    },
+    {
+      "category": "Attraction Tickets",
+      "bookings": 3223,
+      "base_gmv_usd": 425101.0,
+      "pricing_uplift_usd": 13567.0,
+      "uplift_pct": 3.2,
+      "avg_price_multiplier": 1.031
+    },
+    {
+      "category": "Museums & Exhibits",
+      "bookings": 2050,
+      "base_gmv_usd": 201640.0,
+      "pricing_uplift_usd": 6415.0,
+      "uplift_pct": 3.2,
+      "avg_price_multiplier": 1.033
+    }
+  ],
+  "demand_utilisation": [
+    {
+      "demand_band": "Low (<0.9)",
+      "band_order": 1,
+      "exp_days": 6773,
+      "avg_price_multiplier": 0.896,
+      "utilisation_pct": 13.5
+    },
+    {
+      "demand_band": "Normal (0.9-1.1)",
+      "band_order": 2,
+      "exp_days": 7817,
+      "avg_price_multiplier": 0.971,
+      "utilisation_pct": 24.1
+    },
+    {
+      "demand_band": "High (1.1-1.3)",
+      "band_order": 3,
+      "exp_days": 10203,
+      "avg_price_multiplier": 1.04,
+      "utilisation_pct": 33.9
+    },
+    {
+      "demand_band": "Peak (1.3+)",
+      "band_order": 4,
+      "exp_days": 8087,
+      "avg_price_multiplier": 1.119,
+      "utilisation_pct": 45.6
+    }
+  ],
+  "suppliers_top": [
+    {
+      "gmv_rank": 1,
+      "supplier_id": 92,
+      "city": "London",
+      "supplier_tier": 3,
+      "bookings": 434,
+      "gmv_usd": 196343.0,
+      "net_revenue_usd": 48301.0,
+      "avg_take_rate_pct": 24.6,
+      "running_gmv_share_pct": 3.8,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 2,
+      "supplier_id": 103,
+      "city": "Paris",
+      "supplier_tier": 3,
+      "bookings": 503,
+      "gmv_usd": 164707.0,
+      "net_revenue_usd": 45295.0,
+      "avg_take_rate_pct": 27.5,
+      "running_gmv_share_pct": 6.9,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 3,
+      "supplier_id": 40,
+      "city": "Paris",
+      "supplier_tier": 2,
+      "bookings": 605,
+      "gmv_usd": 151809.0,
+      "net_revenue_usd": 31576.0,
+      "avg_take_rate_pct": 20.8,
+      "running_gmv_share_pct": 9.8,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 4,
+      "supplier_id": 143,
+      "city": "New York",
+      "supplier_tier": 2,
+      "bookings": 419,
+      "gmv_usd": 147112.0,
+      "net_revenue_usd": 33689.0,
+      "avg_take_rate_pct": 22.9,
+      "running_gmv_share_pct": 12.6,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 5,
+      "supplier_id": 80,
+      "city": "Paris",
+      "supplier_tier": 2,
+      "bookings": 618,
+      "gmv_usd": 126752.0,
+      "net_revenue_usd": 25097.0,
+      "avg_take_rate_pct": 19.8,
+      "running_gmv_share_pct": 15.0,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 6,
+      "supplier_id": 89,
+      "city": "Istanbul",
+      "supplier_tier": 3,
+      "bookings": 259,
+      "gmv_usd": 125355.0,
+      "net_revenue_usd": 38233.0,
+      "avg_take_rate_pct": 30.5,
+      "running_gmv_share_pct": 17.4,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 7,
+      "supplier_id": 66,
+      "city": "New York",
+      "supplier_tier": 1,
+      "bookings": 368,
+      "gmv_usd": 122637.0,
+      "net_revenue_usd": 20235.0,
+      "avg_take_rate_pct": 16.5,
+      "running_gmv_share_pct": 19.8,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 8,
+      "supplier_id": 33,
+      "city": "New York",
+      "supplier_tier": 2,
+      "bookings": 446,
+      "gmv_usd": 117890.0,
+      "net_revenue_usd": 26407.0,
+      "avg_take_rate_pct": 22.4,
+      "running_gmv_share_pct": 22.0,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 9,
+      "supplier_id": 19,
+      "city": "Orlando",
+      "supplier_tier": 1,
+      "bookings": 418,
+      "gmv_usd": 109438.0,
+      "net_revenue_usd": 20793.0,
+      "avg_take_rate_pct": 19.0,
+      "running_gmv_share_pct": 24.1,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 10,
+      "supplier_id": 127,
+      "city": "New York",
+      "supplier_tier": 1,
+      "bookings": 531,
+      "gmv_usd": 107553.0,
+      "net_revenue_usd": 17101.0,
+      "avg_take_rate_pct": 15.9,
+      "running_gmv_share_pct": 26.2,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 11,
+      "supplier_id": 116,
+      "city": "Cancun",
+      "supplier_tier": 1,
+      "bookings": 384,
+      "gmv_usd": 106519.0,
+      "net_revenue_usd": 17682.0,
+      "avg_take_rate_pct": 16.6,
+      "running_gmv_share_pct": 28.2,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 12,
+      "supplier_id": 126,
+      "city": "New York",
+      "supplier_tier": 3,
+      "bookings": 172,
+      "gmv_usd": 103034.0,
+      "net_revenue_usd": 24007.0,
+      "avg_take_rate_pct": 23.3,
+      "running_gmv_share_pct": 30.2,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 13,
+      "supplier_id": 50,
+      "city": "Cancun",
+      "supplier_tier": 2,
+      "bookings": 261,
+      "gmv_usd": 101166.0,
+      "net_revenue_usd": 24887.0,
+      "avg_take_rate_pct": 24.6,
+      "running_gmv_share_pct": 32.1,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 14,
+      "supplier_id": 59,
+      "city": "Singapore",
+      "supplier_tier": 3,
+      "bookings": 326,
+      "gmv_usd": 100077.0,
+      "net_revenue_usd": 27121.0,
+      "avg_take_rate_pct": 27.1,
+      "running_gmv_share_pct": 34.0,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 15,
+      "supplier_id": 2,
+      "city": "Istanbul",
+      "supplier_tier": 2,
+      "bookings": 274,
+      "gmv_usd": 99963.0,
+      "net_revenue_usd": 24291.0,
+      "avg_take_rate_pct": 24.3,
+      "running_gmv_share_pct": 35.9,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 16,
+      "supplier_id": 20,
+      "city": "London",
+      "supplier_tier": 3,
+      "bookings": 347,
+      "gmv_usd": 93997.0,
+      "net_revenue_usd": 24533.0,
+      "avg_take_rate_pct": 26.1,
+      "running_gmv_share_pct": 37.7,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 17,
+      "supplier_id": 148,
+      "city": "London",
+      "supplier_tier": 3,
+      "bookings": 288,
+      "gmv_usd": 93677.0,
+      "net_revenue_usd": 22389.0,
+      "avg_take_rate_pct": 23.9,
+      "running_gmv_share_pct": 39.5,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 18,
+      "supplier_id": 27,
+      "city": "Singapore",
+      "supplier_tier": 2,
+      "bookings": 349,
+      "gmv_usd": 81223.0,
+      "net_revenue_usd": 19981.0,
+      "avg_take_rate_pct": 24.6,
+      "running_gmv_share_pct": 41.1,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 19,
+      "supplier_id": 106,
+      "city": "Paris",
+      "supplier_tier": 3,
+      "bookings": 211,
+      "gmv_usd": 79888.0,
+      "net_revenue_usd": 20371.0,
+      "avg_take_rate_pct": 25.5,
+      "running_gmv_share_pct": 42.6,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 20,
+      "supplier_id": 74,
+      "city": "London",
+      "supplier_tier": 1,
+      "bookings": 247,
+      "gmv_usd": 75343.0,
+      "net_revenue_usd": 11527.0,
+      "avg_take_rate_pct": 15.3,
+      "running_gmv_share_pct": 44.0,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 21,
+      "supplier_id": 36,
+      "city": "Amsterdam",
+      "supplier_tier": 2,
+      "bookings": 100,
+      "gmv_usd": 74096.0,
+      "net_revenue_usd": 17264.0,
+      "avg_take_rate_pct": 23.3,
+      "running_gmv_share_pct": 45.4,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 22,
+      "supplier_id": 101,
+      "city": "Las Vegas",
+      "supplier_tier": 1,
+      "bookings": 210,
+      "gmv_usd": 73836.0,
+      "net_revenue_usd": 15506.0,
+      "avg_take_rate_pct": 21.0,
+      "running_gmv_share_pct": 46.8,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 23,
+      "supplier_id": 34,
+      "city": "Barcelona",
+      "supplier_tier": 2,
+      "bookings": 167,
+      "gmv_usd": 71408.0,
+      "net_revenue_usd": 16210.0,
+      "avg_take_rate_pct": 22.7,
+      "running_gmv_share_pct": 48.2,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 24,
+      "supplier_id": 75,
+      "city": "New York",
+      "supplier_tier": 1,
+      "bookings": 327,
+      "gmv_usd": 70994.0,
+      "net_revenue_usd": 11998.0,
+      "avg_take_rate_pct": 16.9,
+      "running_gmv_share_pct": 49.6,
+      "tier_flag": "Top 80% of GMV"
+    },
+    {
+      "gmv_rank": 25,
+      "supplier_id": 150,
+      "city": "Barcelona",
+      "supplier_tier": 1,
+      "bookings": 269,
+      "gmv_usd": 67441.0,
+      "net_revenue_usd": 11195.0,
+      "avg_take_rate_pct": 16.6,
+      "running_gmv_share_pct": 50.9,
+      "tier_flag": "Top 80% of GMV"
+    }
+  ],
+  "cities": [
+    {
+      "city": "New York",
+      "region": "North America",
+      "bookings": 3269,
+      "gmv_usd": 920471.0,
+      "cancellation_rate_pct": 9.1,
+      "avg_rating": 4.44,
+      "avg_lead_days": 17.1,
+      "listed_experiences": 49,
+      "experiences_sold": 49
+    },
+    {
+      "city": "London",
+      "region": "Europe",
+      "bookings": 2698,
+      "gmv_usd": 815364.0,
+      "cancellation_rate_pct": 7.7,
+      "avg_rating": 4.39,
+      "avg_lead_days": 17.2,
+      "listed_experiences": 45,
+      "experiences_sold": 44
+    },
+    {
+      "city": "Paris",
+      "region": "Europe",
+      "bookings": 2092,
+      "gmv_usd": 563310.0,
+      "cancellation_rate_pct": 7.4,
+      "avg_rating": 4.42,
+      "avg_lead_days": 17.5,
+      "listed_experiences": 34,
+      "experiences_sold": 33
+    },
+    {
+      "city": "Rome",
+      "region": "Europe",
+      "bookings": 1772,
+      "gmv_usd": 408897.0,
+      "cancellation_rate_pct": 9.8,
+      "avg_rating": 4.42,
+      "avg_lead_days": 17.9,
+      "listed_experiences": 33,
+      "experiences_sold": 33
+    },
+    {
+      "city": "Dubai",
+      "region": "Middle East",
+      "bookings": 1248,
+      "gmv_usd": 397346.0,
+      "cancellation_rate_pct": 9.0,
+      "avg_rating": 4.47,
+      "avg_lead_days": 17.7,
+      "listed_experiences": 29,
+      "experiences_sold": 29
+    },
+    {
+      "city": "Las Vegas",
+      "region": "North America",
+      "bookings": 1224,
+      "gmv_usd": 365149.0,
+      "cancellation_rate_pct": 8.8,
+      "avg_rating": 4.41,
+      "avg_lead_days": 18.0,
+      "listed_experiences": 28,
+      "experiences_sold": 28
+    },
+    {
+      "city": "Orlando",
+      "region": "North America",
+      "bookings": 1445,
+      "gmv_usd": 353636.0,
+      "cancellation_rate_pct": 8.8,
+      "avg_rating": 4.45,
+      "avg_lead_days": 17.2,
+      "listed_experiences": 30,
+      "experiences_sold": 29
+    },
+    {
+      "city": "Barcelona",
+      "region": "Europe",
+      "bookings": 1210,
+      "gmv_usd": 343178.0,
+      "cancellation_rate_pct": 10.7,
+      "avg_rating": 4.44,
+      "avg_lead_days": 17.2,
+      "listed_experiences": 28,
+      "experiences_sold": 28
+    },
+    {
+      "city": "Tokyo",
+      "region": "APAC",
+      "bookings": 1223,
+      "gmv_usd": 312642.0,
+      "cancellation_rate_pct": 8.7,
+      "avg_rating": 4.42,
+      "avg_lead_days": 17.9,
+      "listed_experiences": 31,
+      "experiences_sold": 31
+    },
+    {
+      "city": "Amsterdam",
+      "region": "Europe",
+      "bookings": 886,
+      "gmv_usd": 286229.0,
+      "cancellation_rate_pct": 9.6,
+      "avg_rating": 4.39,
+      "avg_lead_days": 16.8,
+      "listed_experiences": 21,
+      "experiences_sold": 21
+    },
+    {
+      "city": "Cancun",
+      "region": "LATAM",
+      "bookings": 861,
+      "gmv_usd": 273281.0,
+      "cancellation_rate_pct": 9.9,
+      "avg_rating": 4.45,
+      "avg_lead_days": 17.3,
+      "listed_experiences": 20,
+      "experiences_sold": 20
+    },
+    {
+      "city": "Istanbul",
+      "region": "Europe",
+      "bookings": 587,
+      "gmv_usd": 254013.0,
+      "cancellation_rate_pct": 9.2,
+      "avg_rating": 4.5,
+      "avg_lead_days": 17.9,
+      "listed_experiences": 13,
+      "experiences_sold": 13
+    },
+    {
+      "city": "Singapore",
+      "region": "APAC",
+      "bookings": 745,
+      "gmv_usd": 198959.0,
+      "cancellation_rate_pct": 9.4,
+      "avg_rating": 4.4,
+      "avg_lead_days": 17.0,
+      "listed_experiences": 23,
+      "experiences_sold": 23
+    },
+    {
+      "city": "Sydney",
+      "region": "APAC",
+      "bookings": 669,
+      "gmv_usd": 125144.0,
+      "cancellation_rate_pct": 7.8,
+      "avg_rating": 4.44,
+      "avg_lead_days": 17.0,
+      "listed_experiences": 23,
+      "experiences_sold": 22
+    },
+    {
+      "city": "Bangkok",
+      "region": "APAC",
+      "bookings": 453,
+      "gmv_usd": 113800.0,
+      "cancellation_rate_pct": 10.2,
+      "avg_rating": 4.45,
+      "avg_lead_days": 18.4,
+      "listed_experiences": 13,
+      "experiences_sold": 13
+    }
+  ]
+}

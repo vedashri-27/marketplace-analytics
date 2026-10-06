@@ -1,0 +1,68 @@
+version: 2
+
+models:
+  # ---- core ----
+  - name: dim_experience
+    description: "Experience dimension enriched with supplier + city attributes."
+    columns:
+      - name: experience_id
+        tests: [unique, not_null]
+      - name: region
+        tests: [not_null]
+
+  - name: fct_bookings
+    description: "Booking fact, one row per booking, with denormalised category/region."
+    columns:
+      - name: booking_id
+        tests: [unique, not_null]
+      - name: experience_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_experience')
+              field: experience_id
+      - name: gbv_usd
+        tests: [not_null]
+      - name: status
+        tests:
+          - accepted_values:
+              values: ['completed', 'confirmed', 'cancelled']
+
+  - name: fct_sessions
+    description: "Session fact, one row per session, funnel flags as 0/1."
+    columns:
+      - name: session_id
+        tests: [unique, not_null]
+      - name: is_booked
+        tests:
+          - accepted_values:
+              values: [0, 1]
+
+  # ---- marketing ----
+  - name: mart_channel_performance
+    description: "Channel funnel, spend, CAC, ROAS and recommendation."
+    columns:
+      - name: channel
+        tests: [unique, not_null]
+
+  # ---- product ----
+  - name: mart_conversion_funnel
+    description: "Tidy funnel stages with step conversion and drop-off."
+    columns:
+      - name: step_no
+        tests: [unique, not_null]
+
+  - name: mart_experiment_checkout_v2
+    description: "Per-arm A/B readout for the checkout_v2 experiment."
+    columns:
+      - name: variant
+        tests: [unique, not_null]
+
+  # ---- supply ----
+  - name: mart_supplier_economics
+    description: "Supplier GMV, take and running concentration share (Pareto)."
+    columns:
+      - name: supplier_id
+        tests: [unique, not_null]
+      - name: gmv_rank
+        tests: [unique, not_null]

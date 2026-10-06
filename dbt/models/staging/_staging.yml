@@ -1,0 +1,68 @@
+version: 2
+
+# --------------------------------------------------------------------------
+# Raw sources: the CSV extracts produced by python/01_generate_data.py.
+# dbt-duckdb reads them directly via external_location ({name} -> table name).
+# In production these would be landed tables from Fivetran/ingestion instead.
+# --------------------------------------------------------------------------
+sources:
+  - name: raw
+    description: "Raw marketplace tables (CSV extracts)."
+    meta:
+      external_location: "{{ env_var('DATA_DIR', '../data') }}/{name}.csv"
+    tables:
+      - name: fact_bookings
+      - name: fact_sessions
+      - name: fact_marketing_spend
+      - name: fact_daily_pricing
+      - name: dim_customer
+      - name: dim_experience
+      - name: dim_supplier
+      - name: dim_city
+
+# --------------------------------------------------------------------------
+# Staging models: typed, renamed, 1:1 with sources. No business logic here.
+# --------------------------------------------------------------------------
+models:
+  - name: stg_bookings
+    description: "One row per booking, typed and cleaned."
+    columns:
+      - name: booking_id
+        tests: [unique, not_null]
+      - name: status
+        tests:
+          - accepted_values:
+              values: ['completed', 'confirmed', 'cancelled']
+      - name: gbv_usd
+        tests: [not_null]
+
+  - name: stg_sessions
+    description: "One row per web session (funnel grain)."
+    columns:
+      - name: session_id
+        tests: [unique, not_null]
+      - name: experiment_group
+        tests:
+          - accepted_values:
+              values: ['control', 'treatment', 'pre_experiment']
+
+  - name: stg_experiences
+    columns:
+      - name: experience_id
+        tests: [unique, not_null]
+  - name: stg_suppliers
+    columns:
+      - name: supplier_id
+        tests: [unique, not_null]
+  - name: stg_cities
+    columns:
+      - name: city_id
+        tests: [unique, not_null]
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+  - name: stg_marketing_spend
+    description: "Daily paid-channel spend by city."
+  - name: stg_daily_pricing
+    description: "Daily dynamic price + inventory snapshot for top experiences."

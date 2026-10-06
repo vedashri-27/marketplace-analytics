@@ -1,0 +1,24 @@
+# Copy to ~/.dbt/profiles.yml (or keep here and run `dbt build --profiles-dir .`).
+#
+# Local/dev target uses dbt-duckdb reading the CSV extracts directly — no load
+# step needed. The `prod` block shows how the same models deploy to Snowflake.
+marketplace_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "../data/marketplace_dbt.duckdb"
+      # DATA_DIR lets the raw sources point at the CSV folder (see sources.yml)
+      # export DATA_DIR=$(pwd)/../data   before running dbt
+      threads: 4
+
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      authenticator: externalbrowser
+      role: TRANSFORMER
+      warehouse: ANALYTICS_WH
+      database: MARKETPLACE
+      schema: ANALYTICS
+      threads: 8

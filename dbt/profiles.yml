@@ -1,0 +1,11 @@
+# Local run profile (dbt-duckdb reading the CSV extracts). See profiles.example.yml
+# for the Snowflake prod target. Run from this folder:
+#   export DATA_DIR=$(cd ../data && pwd)
+#   dbt build --profiles-dir .
+marketplace_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "../data/marketplace_dbt.duckdb"
+      threads: 4

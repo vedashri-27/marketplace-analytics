@@ -1,0 +1,17 @@
+# dbt build artifacts
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+data/marketplace_dbt.duckdb
+
+# large generated data (reproduce with ./run_all.sh) — kept out of version control
+data/marketplace.db
+data/fact_sessions.csv
+
+# python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# os
+.DS_Store
